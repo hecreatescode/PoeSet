@@ -1,22 +1,24 @@
 // Export utilities for PDF and EPUB
+import type { Poem } from '../types';
+
 export class ExportService {
-  static exportToMarkdown(poems: any[]): string {
+  static exportToMarkdown(poems: Poem[]): string {
     let markdown = '# My Poetry Collection\n\n';
     
     poems.forEach(poem => {
       markdown += `## ${poem.title || 'Untitled'}\n\n`;
       markdown += `*${new Date(poem.date).toLocaleDateString()}*\n\n`;
-      markdown += `${poem.content}\n\n`;
-      if (poem.tags.length > 0) {
-        markdown += `Tags: ${poem.tags.join(', ')}\n\n`;
-      }
-      markdown += '---\n\n';
+  markdown += `${poem.content}\n\n`;
+  if (poem.tags.length > 0) {
+    markdown += `Tags: ${poem.tags.join(', ')}\n\n`;
+  }
+  markdown += '---\n\n';
     });
     
     return markdown;
   }
 
-  static exportToHTML(poems: any[]): string {
+  static exportToHTML(poems: Poem[]): string {
     let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,7 +69,7 @@ export class ExportService {
     URL.revokeObjectURL(url);
   }
 
-  static exportToPDF(poems: any[]) {
+  static exportToPDF(poems: Poem[]) {
     // For PDF, we'll export as HTML and let the user print to PDF
     const html = this.exportToHTML(poems);
     const win = window.open('', '_blank');
@@ -80,7 +82,7 @@ export class ExportService {
     }
   }
 
-  static importFromJSON(jsonString: string): any[] {
+  static importFromJSON(jsonString: string): Poem[] {
     try {
       const data = JSON.parse(jsonString);
       if (Array.isArray(data)) {
