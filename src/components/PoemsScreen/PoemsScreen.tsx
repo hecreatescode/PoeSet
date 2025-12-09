@@ -3,14 +3,20 @@ import { Search } from 'lucide-react';
 import type { Poem } from '../../types';
 import { getPoems } from '../../utils/storage';
 import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { pl, enUS } from 'date-fns/locale';
 import PoemViewer from '../PoemViewer/PoemViewer';
+import { useLanguage } from '../../i18n/useLanguage';
+
+const POEMS_PER_PAGE = 20;
 
 const PoemsScreen: React.FC = () => {
+  const { t, language } = useLanguage();
+  const dateLocale = language === 'pl' ? pl : enUS;
   const [poems, setPoems] = useState<Poem[]>(() => getPoems());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
+  const [displayCount, setDisplayCount] = useState(POEMS_PER_PAGE);
 
   const filteredPoems = useMemo(() => {
     let filtered = [...poems];
@@ -41,19 +47,30 @@ const PoemsScreen: React.FC = () => {
     return filtered;
   }, [poems, searchQuery, sortBy]);
 
+  const displayedPoems = useMemo(() => 
+    filteredPoems.slice(0, displayCount),
+    [filteredPoems, displayCount]
+  );
+
+  const hasMore = displayCount < filteredPoems.length;
+
   const handlePoemUpdated = () => {
     const allPoems = getPoems();
     setPoems(allPoems);
     setSelectedPoem(null);
   };
 
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + POEMS_PER_PAGE);
+  };
+
   return (
     <div style={{ padding: 'var(--spacing-lg)' }}>
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
         <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 300 }}>
-          Wiersze
+          {t.poems.title}
         </h1>
-        <p className="text-secondary">Twoja biblioteka twórczości</p>
+        <p className="text-secondary">{t.poems.subtitle}</p>
       </header>
 
       {/* Search and filters */}
@@ -72,7 +89,7 @@ const PoemsScreen: React.FC = () => {
           <input
             type="text"
             className="input"
-            placeholder="Szukaj wierszy..."
+            placeholder={t.poems.search}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{ paddingLeft: '3rem' }}
@@ -85,21 +102,21 @@ const PoemsScreen: React.FC = () => {
             onClick={() => setSortBy('newest')}
             style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
           >
-            Najnowsze
+            {t.poems.newest}
           </button>
           <button 
             className={`button ${sortBy === 'oldest' ? 'button-primary' : 'button-secondary'}`}
             onClick={() => setSortBy('oldest')}
             style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
           >
-            Najstarsze
+            {t.poems.oldest}
           </button>
           <button 
             className={`button ${sortBy === 'alphabetical' ? 'button-primary' : 'button-secondary'}`}
             onClick={() => setSortBy('alphabetical')}
             style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
           >
-            Alfabetycznie
+            {t.poems.alphabetical}
           </button>
         </div>
       </div>
@@ -108,26 +125,29 @@ const PoemsScreen: React.FC = () => {
       {filteredPoems.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <p className="text-secondary">
-            {searchQuery ? 'Nie znaleziono wierszy.' : 'Nie masz jeszcze żadnych wierszy.'}
+            {searchQuery ? t.poems.noResults : t.poems.noPoems}
           </p>
         </div>
       ) : (
         <>
           <p className="text-secondary mb-md" style={{ fontSize: '0.875rem' }}>
-            {filteredPoems.length} {filteredPoems.length === 1 ? 'wiersz' : 'wierszy'}
+            {filteredPoems.length} {filteredPoems.length === 1 ? t.poems.countSingular : t.poems.count}
+            {displayedPoems.length < filteredPoems.length && (
+              <span> ({t.poems.shown} {displayedPoems.length})</span>
+            )}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-            {filteredPoems.map(poem => (
+            {displayedPoems.map(poem => (
               <div 
                 key={poem.id} 
                 className="card"
                 onClick={() => setSelectedPoem(poem)}
               >
                 <h3 style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
-                  {poem.title || 'Bez tytułu'}
+                  {poem.title || t.editor.untitled}
                 </h3>
                 <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
-                  {format(new Date(poem.date), 'd MMMM yyyy', { locale: pl })}
+                  {format(new Date(poem.date), 'd MMMM yyyy', { locale: dateLocale })}
                 </p>
                 <p style={{ 
                   whiteSpace: 'pre-wrap', 
@@ -175,6 +195,19 @@ const PoemsScreen: React.FC = () => {
               </div>
             ))}
           </div>
+          
+          {hasMore && (
+            <button 
+              className="button button-secondary"
+              onClick={handleLoadMore}
+              style={{ 
+                marginTop: 'var(--spacing-lg)', 
+                width: '100%' 
+              }}
+            >
+              {t.poems.loadMore} ({filteredPoems.length - displayCount} {t.poems.remaining})
+            </button>
+          )}
         </>
       )}
 

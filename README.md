@@ -44,7 +44,55 @@ npm run dev
 
 ## 📝 Changelog
 
-### Version 1.0.1 (Current)
+### Version 1.0.2 (Current)
+- ✨ **New Features:**
+  - Added 4 new themes (Midnight, Forest, Ocean, Rose)
+  - Implemented delete confirmations with modal dialogs
+  - Added poem title editing capability
+  - Hover preview tooltips for poems
+  - Keyboard shortcuts (Esc to close modals)
+  - Markdown support with live preview
+  - Version history for poems
+  - Poem templates (Haiku, Sonnet, Limerick, Free Verse, Acrostic, Tanka)
+  - Advanced filters (date range, length, mood)
+  - Tag autocomplete suggestions
+  - Search result highlighting
+  - Visual statistics charts
+  - Goals and achievements system
+  - Word frequency analysis
+  - Extended export formats (PDF, EPUB, Markdown, HTML)
+  - Import from JSON files
+  - Font size options (Small, Medium, Large, Extra Large)
+  - Layout width customization
+  - Swipe gestures for mobile
+  - Speech-to-text dictation
+  - Offline status indicators
+  - Encryption for private poems
+  - Private collections feature
+  - Social sharing (image generation)
+  - Daily writing reminders
+  - PWA enhancements (Push notifications, Share Target API)
+  - Performance optimizations (Virtual scrolling, IndexedDB migration prep)
+  - Accessibility improvements (High contrast mode, Reduced motion)
+  - Mood tracking for poems
+
+- 🎨 **UI/UX Improvements:**
+  - Improved modal animations
+  - Better mobile responsive design
+  - Enhanced touch interactions
+  - Cleaner settings interface
+  - More intuitive navigation
+
+- 🔧 **Technical:**
+  - Encryption utility for secure content
+  - Markdown parser
+  - Export service for multiple formats
+  - Template system
+  - Enhanced type definitions
+  - Better error handling
+  - Improved accessibility features
+
+### Version 1.0.1
 - ✅ Added bilingual support (Polish/English)
 - ✅ Auto-detect browser language
 - ✅ Fixed TypeScript compilation errors

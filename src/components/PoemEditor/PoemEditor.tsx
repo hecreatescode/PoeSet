@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Save, Tag, Calendar } from 'lucide-react';
 import type { Poem } from '../../types';
 import { savePoem } from '../../utils/storage';
@@ -18,6 +18,40 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const [date, setDate] = useState(poem?.date.split('T')[0] || initialDate || new Date().toISOString().split('T')[0]);
   const [showTagInput, setShowTagInput] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [autoSaved, setAutoSaved] = useState(false);
+  const autoSaveTimerRef = useRef<number | null>(null);
+
+  // Auto-save funkcja co 3 sekundy
+  useEffect(() => {
+    if (!content.trim()) return;
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = window.setTimeout(() => {
+      const now = new Date().toISOString();
+      const poemData: Poem = {
+        id: poem?.id || `poem_${Date.now()}`,
+        title: title.trim() || 'Bez tytułu',
+        content: content.trim(),
+        date: `${date}T${new Date().toISOString().split('T')[1]}`,
+        tags,
+        collectionIds: poem?.collectionIds || [],
+        createdAt: poem?.createdAt || now,
+        updatedAt: now,
+      };
+      savePoem(poemData);
+      setAutoSaved(true);
+      setTimeout(() => setAutoSaved(false), 2000);
+    }, 3000);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [title, content, tags, date, poem]);
 
   const handleSave = () => {
     if (!content.trim()) return;
@@ -78,7 +112,16 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
           <X size={20} />
         </button>
         
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {autoSaved && (
+            <span style={{ 
+              fontSize: '0.75rem', 
+              color: 'var(--text-secondary)',
+              marginRight: '0.5rem'
+            }}>
+              ✓ Zapisano
+            </span>
+          )}
           <button 
             className="button button-secondary"
             onClick={() => setShowTagInput(!showTagInput)}

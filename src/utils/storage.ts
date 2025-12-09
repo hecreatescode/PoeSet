@@ -89,14 +89,66 @@ export const getSettings = (): Settings => {
   return data ? JSON.parse(data) : {
     theme: 'light',
     fontFamily: 'serif',
+    fontSize: 'medium',
     lineSpacing: 'normal',
+    layoutWidth: 'medium',
     startView: 'journal',
     language: 'pl',
+    enableMarkdown: false,
+    enableEncryption: false,
+    enableReminders: false,
+    enableSwipeGestures: true,
+    highContrast: false,
+    reducedMotion: false,
+    offlineMode: true,
   };
 };
 
 export const saveSettings = (settings: Settings): void => {
   localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+};
+
+// Goals
+const GOALS_KEY = 'poeset_goals';
+
+export const getGoals = (): any[] => {
+  const data = localStorage.getItem(GOALS_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+export const saveGoal = (goal: any): void => {
+  const goals = getGoals();
+  const existingIndex = goals.findIndex(g => g.id === goal.id);
+  if (existingIndex >= 0) {
+    goals[existingIndex] = goal;
+  } else {
+    goals.push(goal);
+  }
+  localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+};
+
+export const deleteGoal = (id: string): void => {
+  const goals = getGoals().filter(g => g.id !== id);
+  localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+};
+
+// Achievements
+const ACHIEVEMENTS_KEY = 'poeset_achievements';
+
+export const getAchievements = (): any[] => {
+  const data = localStorage.getItem(ACHIEVEMENTS_KEY);
+  return data ? JSON.parse(data) : [];
+};
+
+export const saveAchievement = (achievement: any): void => {
+  const achievements = getAchievements();
+  const existingIndex = achievements.findIndex(a => a.id === achievement.id);
+  if (existingIndex >= 0) {
+    achievements[existingIndex] = achievement;
+  } else {
+    achievements.push(achievement);
+  }
+  localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
 };
 
 // Export/Backup

@@ -1,23 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BookOpen, FileText, Folder, BarChart3, Settings as SettingsIcon } from 'lucide-react';
 import './App.css';
 import type { Screen } from './types';
 import { getSettings } from './utils/storage';
-import JournalScreen from './components/JournalScreen/JournalScreen';
-import PoemsScreen from './components/PoemsScreen/PoemsScreen';
-import CollectionsScreen from './components/CollectionsScreen/CollectionsScreen';
-import StatisticsScreen from './components/StatisticsScreen/StatisticsScreen';
-import SettingsScreen from './components/SettingsScreen/SettingsScreen';
+import { useLanguage } from './i18n/useLanguage';
+
+// Lazy loading komponentów dla lepszej wydajności
+const JournalScreen = lazy(() => import('./components/JournalScreen/JournalScreen'));
+const PoemsScreen = lazy(() => import('./components/PoemsScreen/PoemsScreen'));
+const CollectionsScreen = lazy(() => import('./components/CollectionsScreen/CollectionsScreen'));
+const StatisticsScreen = lazy(() => import('./components/StatisticsScreen/StatisticsScreen'));
+const SettingsScreen = lazy(() => import('./components/SettingsScreen/SettingsScreen'));
 
 function App() {
+  const { t } = useLanguage();
   const [currentScreen, setCurrentScreen] = useState<Screen>('journal');
+
+  // Loading spinner component
+  const LoadingSpinner = () => (
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      height: '100vh',
+      color: 'var(--text-secondary)'
+    }}>
+      <div>{t.common.loading}</div>
+    </div>
+  );
 
   useEffect(() => {
     // Apply initial settings
     const settings = getSettings();
     document.body.setAttribute('data-theme', settings.theme);
     document.body.classList.add(`font-${settings.fontFamily}`);
+    document.body.classList.add(`font-size-${settings.fontSize || 'medium'}`);
     document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
+    
+    if (settings.highContrast) {
+      document.body.classList.add('high-contrast');
+    }
+    
+    if (settings.reducedMotion) {
+      document.body.classList.add('reduced-motion');
+    }
     
     // Set initial screen from settings
     setCurrentScreen(settings.startView);
@@ -42,8 +68,33 @@ function App() {
 
   return (
     <div className="app">
-      <main className="main-content">
-        {renderScreen()}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--light-bg)',
+        borderBottom: '1px solid var(--light-border)',
+        zIndex: 999,
+      }}>
+        <h1 style={{
+          fontFamily: "'Jomhuria', serif",
+          fontSize: '3rem',
+          fontWeight: 400,
+          margin: 0,
+          letterSpacing: '2px',
+        }}>
+          PoeSet
+        </h1>
+      </header>
+      <main className="main-content" style={{ paddingTop: '60px' }}>
+        <Suspense fallback={<LoadingSpinner />}>
+          {renderScreen()}
+        </Suspense>
       </main>
 
       <nav className="navigation">
@@ -52,7 +103,7 @@ function App() {
           onClick={() => setCurrentScreen('journal')}
         >
           <BookOpen size={24} />
-          <span>Dziennik</span>
+          <span>{t.nav.journal}</span>
         </button>
         
         <button 
@@ -60,7 +111,7 @@ function App() {
           onClick={() => setCurrentScreen('poems')}
         >
           <FileText size={24} />
-          <span>Wiersze</span>
+          <span>{t.nav.poems}</span>
         </button>
         
         <button 
@@ -68,7 +119,7 @@ function App() {
           onClick={() => setCurrentScreen('collections')}
         >
           <Folder size={24} />
-          <span>Zbiory</span>
+          <span>{t.nav.collections}</span>
         </button>
         
         <button 
@@ -76,7 +127,7 @@ function App() {
           onClick={() => setCurrentScreen('statistics')}
         >
           <BarChart3 size={24} />
-          <span>Statystyki</span>
+          <span>{t.nav.statistics}</span>
         </button>
         
         <button 
@@ -84,7 +135,7 @@ function App() {
           onClick={() => setCurrentScreen('settings')}
         >
           <SettingsIcon size={24} />
-          <span>Ustawienia</span>
+          <span>{t.nav.settings}</span>
         </button>
       </nav>
     </div>

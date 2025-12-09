@@ -4,8 +4,10 @@ import type { Collection } from '../../types';
 import { getCollections } from '../../utils/storage';
 import CollectionEditor from '../CollectionEditor/CollectionEditor';
 import CollectionViewer from '../CollectionViewer/CollectionViewer';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const CollectionsScreen: React.FC = () => {
+  const { t } = useLanguage();
   const [collections, setCollections] = useState<Collection[]>(getCollections());
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
@@ -31,9 +33,9 @@ const CollectionsScreen: React.FC = () => {
     <div>
       <header className="mb-xl">
         <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 300 }}>
-          Zbiory
+          {t.collections.title}
         </h1>
-        <p className="text-secondary">Twoje tomiki poetyckie</p>
+        <p className="text-secondary">{t.collections.subtitle}</p>
       </header>
 
       <button 
@@ -41,17 +43,17 @@ const CollectionsScreen: React.FC = () => {
         onClick={() => { setSelectedCollection(null); setIsEditorOpen(true); }}
       >
         <Plus size={20} />
-        Nowy zbiór
+        {t.collections.newCollection}
       </button>
 
       {collections.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <Folder size={48} style={{ opacity: 0.3, margin: '0 auto 1rem' }} />
           <p className="text-secondary">
-            Nie masz jeszcze żadnych zbiorów.
+            {t.collections.noCollections}
           </p>
           <p className="text-secondary" style={{ marginTop: '0.5rem' }}>
-            Stwórz tomik, aby grupować swoje wiersze.
+            {t.collections.createFirst}
           </p>
         </div>
       ) : (
@@ -86,7 +88,7 @@ const CollectionsScreen: React.FC = () => {
                 </p>
               )}
               <p className="text-secondary" style={{ fontSize: '0.75rem' }}>
-                {getPoemCount(collection.id)} {getPoemCount(collection.id) === 1 ? 'wiersz' : 'wierszy'}
+                {getPoemCount(collection.id)} {getPoemCount(collection.id) === 1 ? t.collections.poemsSingular : t.collections.poems}
               </p>
             </div>
           ))}

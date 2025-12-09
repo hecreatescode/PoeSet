@@ -2,8 +2,10 @@ import React from 'react';
 import { BarChart3, TrendingUp, Calendar, Clock, Tag } from 'lucide-react';
 import { getPoems } from '../../utils/storage';
 import { calculateStatistics } from '../../utils/statistics';
+import { useLanguage } from '../../i18n/useLanguage';
 
 const StatisticsScreen: React.FC = () => {
+  const { t } = useLanguage();
   const poems = getPoems();
   const stats = calculateStatistics(poems);
 
@@ -11,9 +13,9 @@ const StatisticsScreen: React.FC = () => {
     <div>
       <header className="mb-xl">
         <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 300 }}>
-          Statystyki
+          {t.statistics.title}
         </h1>
-        <p className="text-secondary">Analityka Twojej twórczości</p>
+        <p className="text-secondary">{t.statistics.subtitle}</p>
       </header>
 
       {/* Overview cards */}
@@ -29,7 +31,7 @@ const StatisticsScreen: React.FC = () => {
             {stats.totalPoems}
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            Wszystkich wierszy
+            {t.statistics.totalPoems}
           </p>
         </div>
 
@@ -39,7 +41,7 @@ const StatisticsScreen: React.FC = () => {
             {stats.writingStreak}
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            Seria dni
+            {t.statistics.currentStreak}
           </p>
         </div>
 
@@ -49,7 +51,7 @@ const StatisticsScreen: React.FC = () => {
             {stats.poemsThisWeek}
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            W tym tygodniu
+            {t.statistics.averagePerWeek}
           </p>
         </div>
 
@@ -59,7 +61,7 @@ const StatisticsScreen: React.FC = () => {
             {stats.poemsThisMonth}
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            W tym miesiącu
+            {t.statistics.mostProductiveDay}
           </p>
         </div>
       </div>
@@ -70,10 +72,10 @@ const StatisticsScreen: React.FC = () => {
         <div className="card" style={{ cursor: 'default' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <Calendar size={20} />
-            Najbardziej twórczy dzień
+            {t.statistics.mostProductiveDay}
           </h3>
           <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-            {stats.mostProductiveDay}
+            {stats.mostProductiveDay === 'Brak danych' ? t.statistics.noData : stats.mostProductiveDay}
           </p>
         </div>
 
@@ -81,7 +83,7 @@ const StatisticsScreen: React.FC = () => {
         <div className="card" style={{ cursor: 'default' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <Clock size={20} />
-            Najbardziej twórcza godzina
+            {t.statistics.mostProductiveHour}
           </h3>
           <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
             {stats.mostProductiveHour}:00 - {stats.mostProductiveHour + 1}:00
@@ -92,10 +94,10 @@ const StatisticsScreen: React.FC = () => {
         <div className="card" style={{ cursor: 'default' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <BarChart3 size={20} />
-            Średnia długość wiersza
+            {t.statistics.averageLength}
           </h3>
           <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-            {stats.averageLength} znaków
+            {stats.averageLength} {t.statistics.characters}
           </p>
         </div>
 
@@ -104,7 +106,7 @@ const StatisticsScreen: React.FC = () => {
           <div className="card" style={{ cursor: 'default' }}>
             <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
               <Tag size={20} />
-              Najczęściej używane tagi
+              {t.statistics.popularTags}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
               {stats.mostUsedTags.map((item, index) => (

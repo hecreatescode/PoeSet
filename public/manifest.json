@@ -1,0 +1,33 @@
+{
+  "name": "PoeSet - Dziennik Poety",
+  "short_name": "PoeSet",
+  "version": "1.0.2",
+  "description": "Minimalistyczna aplikacja do pisania i organizowania poezji",
+  "start_url": "/PoeSet/",
+  "display": "standalone",
+  "background_color": "#f9f7f4",
+  "theme_color": "#2c2c2c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ]
+}
