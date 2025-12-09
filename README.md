@@ -1,29 +1,29 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/hecreatescode/PoeSet/main/public/ground.png" alt="PoeSet Logo" width="200"/>
   
-  # PoeSet - Dziennik Poety 📖
+  # PoeSet - Poet's Journal 📖
   
-  Minimalistyczna, offline-first aplikacja PWA do pisania i organizowania poezji.
+  A minimalist, offline-first PWA application for writing and organizing poetry.
 </div>
 
-## ✨ Funkcje
+## ✨ Features
 
-- 📝 **Dziennik** - Pisz codzienne wiersze z datowaniem
-- 📚 **Biblioteka** - Przeszukuj i sortuj wszystkie wiersze
-- 📁 **Zbiory** - Organizuj wiersze w kolorowe kolekcje
-- 📊 **Statystyki** - Śledź swoją twórczość i streaki
-- 🌍 **Dwujęzyczna** - Polski i angielski z automatyczną detekcją
-- 🎨 **3 motywy** - Jasny, ciemny i sepia
-- 💾 **Offline-first** - Wszystko zapisywane lokalnie
-- 🔄 **Auto-save** - Automatyczne zapisywanie co 3 sekundy
-- 📱 **PWA** - Instalowalna na telefonie jak natywna aplikacja
-- ⚡ **Lazy loading** - Optymalizacja wydajności dla dużych bibliotek
+- 📝 **Journal** - Write daily poems with timestamps
+- 📚 **Library** - Search and sort all your poems
+- 📁 **Collections** - Organize poems into colorful collections
+- 📊 **Statistics** - Track your creativity and writing streaks
+- 🌍 **Bilingual** - Polish and English with automatic detection
+- 🎨 **3 themes** - Light, dark, and sepia
+- 💾 **Offline-first** - Everything saved locally
+- 🔄 **Auto-save** - Automatic saving every 3 seconds
+- 📱 **PWA** - Installable on mobile like a native app
+- ⚡ **Lazy loading** - Performance optimization for large libraries
 
-## 🚀 Instalacja na telefonie
+## 🚀 Install on Mobile
 
-1. Otwórz **https://hecreatescode.github.io/PoeSet/** w przeglądarce
-2. **Android**: Menu → "Dodaj do ekranu głównego"
-3. **iOS**: Udostępnij → "Dodaj do ekranu głównego"
+1. Open **https://hecreatescode.github.io/PoeSet/** in your browser
+2. **Android**: Menu → "Add to Home Screen"
+3. **iOS**: Share → "Add to Home Screen"
 
 ## 💻 Development
 
