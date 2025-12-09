@@ -1,6 +1,7 @@
 {
   "name": "PoeSet - Dziennik Poety",
   "short_name": "PoeSet",
+  "version": "1.0.1",
   "description": "Minimalistyczna aplikacja do pisania i organizowania poezji",
   "start_url": "/PoeSet/",
   "display": "standalone",
