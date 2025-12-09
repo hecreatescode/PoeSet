@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Plus, Folder } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
 import type { Collection } from '../../types';
-import { getCollections } from '../../utils/storage';
+import { getCollections, saveCollection } from '../../utils/storage';
 import CollectionEditor from '../CollectionEditor/CollectionEditor';
 import CollectionViewer from '../CollectionViewer/CollectionViewer';
 import { useLanguage } from '../../i18n/useLanguage';
@@ -27,6 +29,23 @@ const CollectionsScreen: React.FC = () => {
   const getPoemCount = (collectionId: string): number => {
     const collection = collections.find(c => c.id === collectionId);
     return collection?.poemIds.length || 0;
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(collections);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update order property for each collection
+    const updatedCollections = items.map((col, index) => {
+      const updated = { ...col, order: index };
+      saveCollection(updated);
+      return updated;
+    });
+
+    setCollections(updatedCollections);
   };
 
   return (
@@ -57,19 +76,33 @@ const CollectionsScreen: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: 'var(--spacing-md)',
-        }}>
-          {collections.map(collection => (
-            <div 
-              key={collection.id} 
-              className="card"
-              onClick={() => setViewingCollection(collection)}
-              style={{
-                borderLeft: `4px solid ${collection.color}`,
-              }}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="collections">
+            {(provided) => (
+              <div 
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                  gap: 'var(--spacing-md)',
+                }}
+              >
+                {collections.map((collection, index) => (
+                  <Draggable key={collection.id} draggableId={collection.id} index={index}>
+                    {(provided, snapshot) => (
+                      <div 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="card"
+                        onClick={() => setViewingCollection(collection)}
+                        style={{
+                          borderLeft: `4px solid ${collection.color}`,
+                          opacity: snapshot.isDragging ? 0.8 : 1,
+                          transform: snapshot.isDragging ? 'rotate(2deg)' : 'none',
+                          ...provided.draggableProps.style,
+                        }}
             >
               <h3 style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
                 {collection.name}
@@ -90,9 +123,15 @@ const CollectionsScreen: React.FC = () => {
               <p className="text-secondary" style={{ fontSize: '0.75rem' }}>
                 {getPoemCount(collection.id)} {getPoemCount(collection.id) === 1 ? t.collections.poemsSingular : t.collections.poems}
               </p>
-            </div>
-          ))}
-        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       {isEditorOpen && (

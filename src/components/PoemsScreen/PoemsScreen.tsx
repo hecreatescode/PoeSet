@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Search } from 'lucide-react';
 import type { Poem } from '../../types';
 import { getPoems } from '../../utils/storage';
@@ -6,6 +6,8 @@ import { format } from 'date-fns';
 import { pl, enUS } from 'date-fns/locale';
 import PoemViewer from '../PoemViewer/PoemViewer';
 import { useLanguage } from '../../i18n/useLanguage';
+import Tooltip from '../Tooltip/Tooltip';
+import { useKeyboardShortcuts, createCommonShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 const POEMS_PER_PAGE = 20;
 
@@ -17,6 +19,15 @@ const PoemsScreen: React.FC = () => {
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
   const [displayCount, setDisplayCount] = useState(POEMS_PER_PAGE);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcuts
+  const shortcuts = createCommonShortcuts({
+    onSearch: () => searchInputRef.current?.focus(),
+    onClose: () => selectedPoem && setSelectedPoem(null),
+  });
+  
+  useKeyboardShortcuts(shortcuts);
 
   const filteredPoems = useMemo(() => {
     let filtered = [...poems];
@@ -87,6 +98,7 @@ const PoemsScreen: React.FC = () => {
             }} 
           />
           <input
+            ref={searchInputRef}
             type="text"
             className="input"
             placeholder={t.poems.search}
@@ -138,17 +150,28 @@ const PoemsScreen: React.FC = () => {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
             {displayedPoems.map(poem => (
-              <div 
-                key={poem.id} 
-                className="card"
-                onClick={() => setSelectedPoem(poem)}
+              <Tooltip
+                key={poem.id}
+                content={
+                  <div className="tooltip-content-preview">
+                    <strong>{poem.title || t.editor.untitled}</strong>
+                    <br />
+                    {poem.content.substring(0, 200)}
+                    {poem.content.length > 200 && '...'}
+                  </div>
+                }
+                delay={800}
               >
-                <h3 style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
-                  {poem.title || t.editor.untitled}
-                </h3>
-                <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
-                  {format(new Date(poem.date), 'd MMMM yyyy', { locale: dateLocale })}
-                </p>
+                <div 
+                  className="card"
+                  onClick={() => setSelectedPoem(poem)}
+                >
+                  <h3 style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
+                    {poem.title || t.editor.untitled}
+                  </h3>
+                  <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
+                    {format(new Date(poem.date), 'd MMMM yyyy', { locale: dateLocale })}
+                  </p>
                 <p style={{ 
                   whiteSpace: 'pre-wrap', 
                   lineHeight: 1.6,
@@ -192,7 +215,8 @@ const PoemsScreen: React.FC = () => {
                     )}
                   </div>
                 )}
-              </div>
+                </div>
+              </Tooltip>
             ))}
           </div>
           

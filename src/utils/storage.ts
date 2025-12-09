@@ -1,5 +1,5 @@
 // System przechowywania danych w localStorage
-import type { Poem, Collection, Settings, DailyJournal } from '../types';
+import type { Poem, Collection, Settings, DailyJournal, Goal, Achievement } from '../types';
 
 const STORAGE_KEYS = {
   POEMS: 'poeset_poems',
@@ -111,12 +111,12 @@ export const saveSettings = (settings: Settings): void => {
 // Goals
 const GOALS_KEY = 'poeset_goals';
 
-export const getGoals = (): any[] => {
+export const getGoals = (): Goal[] => {
   const data = localStorage.getItem(GOALS_KEY);
   return data ? JSON.parse(data) : [];
 };
 
-export const saveGoal = (goal: any): void => {
+export const saveGoal = (goal: Goal): void => {
   const goals = getGoals();
   const existingIndex = goals.findIndex(g => g.id === goal.id);
   if (existingIndex >= 0) {
@@ -135,12 +135,12 @@ export const deleteGoal = (id: string): void => {
 // Achievements
 const ACHIEVEMENTS_KEY = 'poeset_achievements';
 
-export const getAchievements = (): any[] => {
+export const getAchievements = (): Achievement[] => {
   const data = localStorage.getItem(ACHIEVEMENTS_KEY);
   return data ? JSON.parse(data) : [];
 };
 
-export const saveAchievement = (achievement: any): void => {
+export const saveAchievement = (achievement: Achievement): void => {
   const achievements = getAchievements();
   const existingIndex = achievements.findIndex(a => a.id === achievement.id);
   if (existingIndex >= 0) {

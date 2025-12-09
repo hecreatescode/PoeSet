@@ -1,0 +1,72 @@
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 10000;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: tooltipFadeIn 0.2s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+body[data-theme="light"] .tooltip {
+  background: rgba(44, 44, 44, 0.95);
+  color: white;
+}
+
+body[data-theme="dark"] .tooltip {
+  background: rgba(220, 220, 220, 0.95);
+  color: #1a1a1a;
+}
+
+body[data-theme="sepia"] .tooltip {
+  background: rgba(62, 39, 35, 0.95);
+  color: #f9f7f4;
+}
+
+body[data-theme="midnight"] .tooltip {
+  background: rgba(224, 230, 240, 0.95);
+  color: #0a0e1a;
+}
+
+body[data-theme="forest"] .tooltip {
+  background: rgba(232, 245, 232, 0.95);
+  color: #1a2f1a;
+}
+
+body[data-theme="ocean"] .tooltip {
+  background: rgba(212, 231, 245, 0.95);
+  color: #0f1e2e;
+}
+
+body[data-theme="rose"] .tooltip {
+  background: rgba(245, 232, 235, 0.95);
+  color: #2a1a1f;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.tooltip-content-preview {
+  white-space: pre-wrap;
+  max-height: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

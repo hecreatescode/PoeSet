@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Save, Tag, Calendar } from 'lucide-react';
 import type { Poem } from '../../types';
 import { savePoem } from '../../utils/storage';
+import { useKeyboardShortcuts, createCommonShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 interface PoemEditorProps {
   poem?: Poem;
@@ -20,6 +21,14 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [autoSaved, setAutoSaved] = useState(false);
   const autoSaveTimerRef = useRef<number | null>(null);
+  const poemIdRef = useRef<string>(poem?.id || '');
+
+  // Initialize poemId if not provided
+  useEffect(() => {
+    if (!poemIdRef.current) {
+      poemIdRef.current = `poem_${Date.now()}`;
+    }
+  }, []);
 
   // Auto-save funkcja co 3 sekundy
   useEffect(() => {
@@ -28,11 +37,10 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
     if (autoSaveTimerRef.current) {
       clearTimeout(autoSaveTimerRef.current);
     }
-
     autoSaveTimerRef.current = window.setTimeout(() => {
       const now = new Date().toISOString();
       const poemData: Poem = {
-        id: poem?.id || `poem_${Date.now()}`,
+        id: poemIdRef.current,
         title: title.trim() || 'Bez tytułu',
         content: content.trim(),
         date: `${date}T${new Date().toISOString().split('T')[1]}`,
@@ -53,13 +61,12 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
     };
   }, [title, content, tags, date, poem]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (!content.trim()) return;
-
     const now = new Date().toISOString();
     const poemData: Poem = {
-      id: poem?.id || `poem_${Date.now()}`,
-      title: title.trim(),
+      id: poemIdRef.current,
+      title: title.trim() || 'Bez tytułu',
       content: content.trim(),
       date: `${date}T${new Date().toISOString().split('T')[1]}`,
       tags,
@@ -70,7 +77,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
 
     savePoem(poemData);
     onSave(poemData);
-  };
+  }, [content, title, date, tags, poem, onSave]);
 
   const handleAddTag = () => {
     const tag = tagInput.trim();
@@ -83,6 +90,18 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(t => t !== tagToRemove));
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const shortcuts = createCommonShortcuts({
+      onSave: handleSave,
+      onClose: onClose,
+    });
+    
+    // Register shortcuts
+    const cleanup = useKeyboardShortcuts(shortcuts);
+    return cleanup;
+  }, [handleSave, onClose]);
 
   return (
     <div style={{
