@@ -442,19 +442,19 @@ body[data-theme="ocean"] .button-secondary:hover {
 }
 
 body[data-theme="rose"] {
-  background: #f5e8eb;
+  background: #ffe8f0;
   color: #4a1f2e;
-  --bg-primary: #f5e8eb;
-  --bg-secondary: #fff5f7;
+  --bg-primary: #ffe8f0;
+  --bg-secondary: #fff5f9;
   --text-primary: #4a1f2e;
   --text-secondary: #8a5060;
-  --border-color: #e0b8c5;
+  --border-color: #ffcce0;
   --accent-color: #c44569;
 }
 
 body[data-theme="rose"] .navigation {
-  background: rgba(245, 232, 235, 0.9);
-  border-top-color: #e0b8c5;
+  background: rgba(255, 232, 240, 0.9);
+  border-top-color: #ffcce0;
 }
 
 body[data-theme="rose"] .nav-button {
@@ -467,13 +467,13 @@ body[data-theme="rose"] .nav-button.active {
 }
 
 body[data-theme="rose"] .card {
-  background: #fff5f7;
-  border: 1px solid #e0b8c5;
+  background: #fff5f9;
+  border: 1px solid #ffcce0;
 }
 
 body[data-theme="rose"] .input {
-  background: #fff5f7;
-  border-color: #e0b8c5;
+  background: #fff5f9;
+  border-color: #ffcce0;
   color: #4a1f2e;
 }
 
@@ -489,11 +489,11 @@ body[data-theme="rose"] .button-primary:hover {
 body[data-theme="rose"] .button-secondary {
   background: transparent;
   color: #4a1f2e;
-  border-color: #e0b8c5;
+  border-color: #ffcce0;
 }
 
 body[data-theme="rose"] .button-secondary:hover {
-  background: #fff5f7;
+  background: #fff5f9;
 }
 
 /* Font sizes */

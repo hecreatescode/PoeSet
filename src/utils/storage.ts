@@ -183,7 +183,7 @@ export const getSettings = (): Settings => {
     layoutWidth: 'medium',
     startView: 'journal',
     language: 'pl',
-    enableMarkdown: false,
+    enableMarkdown: true,
     enableEncryption: false,
     enableReminders: false,
     enableSwipeGestures: true,
