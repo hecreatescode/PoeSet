@@ -83,8 +83,8 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--light-bg)',
-        borderBottom: '1px solid var(--light-border)',
+        background: 'var(--bg-primary)',
+        borderBottom: '1px solid var(--border-color)',
         zIndex: 999,
       }}>
         <h1 style={{
@@ -93,6 +93,7 @@ function App() {
           fontWeight: 400,
           margin: 0,
           letterSpacing: '2px',
+          color: 'var(--text-primary)',
         }}>
           PoeSet
         </h1>

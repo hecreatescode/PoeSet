@@ -63,16 +63,34 @@ body {
 body[data-theme="light"] {
   background-color: var(--light-bg);
   color: var(--light-text);
+  --bg-primary: var(--light-bg);
+  --bg-secondary: var(--light-bg-secondary);
+  --text-primary: var(--light-text);
+  --text-secondary: var(--light-text-secondary);
+  --border-color: var(--light-border);
+  --accent-color: var(--light-accent);
 }
 
 body[data-theme="dark"] {
   background-color: var(--dark-bg);
   color: var(--dark-text);
+  --bg-primary: var(--dark-bg);
+  --bg-secondary: var(--dark-bg-secondary);
+  --text-primary: var(--dark-text);
+  --text-secondary: var(--dark-text-secondary);
+  --border-color: var(--dark-border);
+  --accent-color: var(--dark-accent);
 }
 
 body[data-theme="sepia"] {
   background-color: var(--sepia-bg);
   color: var(--sepia-text);
+  --bg-primary: var(--sepia-bg);
+  --bg-secondary: var(--sepia-bg-secondary);
+  --text-primary: var(--sepia-text);
+  --text-secondary: var(--sepia-text-secondary);
+  --border-color: var(--sepia-border);
+  --accent-color: var(--sepia-accent);
 }
 
 /* Font families */
