@@ -9,6 +9,30 @@ const StatisticsScreen: React.FC = () => {
   const poems = getPoems();
   const stats = calculateStatistics(poems);
 
+  // Word frequency analysis
+  const getWordFrequency = () => {
+    const words: Record<string, number> = {};
+    const stopWords = new Set(['i', 'a', 'w', 'z', 'na', 'do', 'po', 'o', 'to', 'się', 'że', 'nie', 'by', 'te', 'za', 'od', 'ze', 'przy', 'ale', 'lub', 'oraz', 'jest', 'są', 'jak', 'gdy', 'już', 'tylko', 'jeszcze', 'czyli', 'więc', 'może', 'czy', 'tam', 'tu', 'dla', 'przed', 'pod', 'przez']);
+    
+    poems.forEach(poem => {
+      const text = `${poem.title} ${poem.content}`.toLowerCase();
+      const wordsArray = text.match(/[a-ząćęłńóśźż]+/g) || [];
+      
+      wordsArray.forEach(word => {
+        if (word.length > 3 && !stopWords.has(word)) {
+          words[word] = (words[word] || 0) + 1;
+        }
+      });
+    });
+    
+    return Object.entries(words)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map(([word, count]) => ({ word, count }));
+  };
+  
+  const wordFrequency = getWordFrequency();
+
   return (
     <div>
       <header className="mb-xl">
@@ -146,6 +170,57 @@ const StatisticsScreen: React.FC = () => {
                         mixBlendMode: 'difference',
                       }}>
                         {item.tag}
+                      </span>
+                    </div>
+                  </div>
+                  <span style={{ fontWeight: 500, minWidth: '3rem', textAlign: 'right' }}>
+                    {item.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Word Frequency */}
+        {wordFrequency.length > 0 && (
+          <div className="card" style={{ cursor: 'default' }}>
+            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <Tag size={20} />
+              Najczęściej używane słowa
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+              {wordFrequency.map((item, index) => (
+                <div key={item.word} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-md)',
+                }}>
+                  <div style={{ flex: 1, position: 'relative', minHeight: '2rem' }}>
+                    <div style={{
+                      position: 'relative',
+                      height: '2rem',
+                      borderRadius: 'var(--radius-sm)',
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        height: '100%',
+                        width: `${(item.count / wordFrequency[0].count) * 100}%`,
+                        background: `hsl(${200 - index * 5}, 70%, 50%)`,
+                        transition: 'width var(--transition-normal)',
+                      }} />
+                      <span style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: 'var(--spacing-md)',
+                        transform: 'translateY(-50%)',
+                        fontWeight: 500,
+                        zIndex: 1,
+                      }}>
+                        {item.word}
                       </span>
                     </div>
                   </div>

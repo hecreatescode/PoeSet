@@ -6,6 +6,8 @@ import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import CollectionEditor from '../CollectionEditor/CollectionEditor';
 import PoemViewer from '../PoemViewer/PoemViewer';
+import Modal from '../Modal/Modal';
+import { useLanguage } from '../../i18n/useLanguage';
 
 interface CollectionViewerProps {
   collection: Collection;
@@ -16,6 +18,8 @@ interface CollectionViewerProps {
 const CollectionViewer: React.FC<CollectionViewerProps> = ({ collection, onClose, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { t } = useLanguage();
 
   const poems = useMemo(() => {
     const allPoems = getPoems();
@@ -23,11 +27,13 @@ const CollectionViewer: React.FC<CollectionViewerProps> = ({ collection, onClose
   }, [collection.poemIds]);
 
   const handleDelete = () => {
-    if (window.confirm('Czy na pewno chcesz usunąć ten zbiór?')) {
-      deleteCollection(collection.id);
-      onUpdate();
-      onClose();
-    }
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    deleteCollection(collection.id);
+    onUpdate();
+    onClose();
   };
   const handleExport = () => {
     const text = `${collection.name}\n${collection.description ? collection.description + '\n' : ''}\n${'='.repeat(50)}\n\n` +
@@ -182,6 +188,32 @@ const CollectionViewer: React.FC<CollectionViewerProps> = ({ collection, onClose
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title={t.collections.deleteCollection || 'Usuń zbiór'}
+        footer={
+          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', justifyContent: 'flex-end' }}>
+            <button 
+              className="button button-secondary" 
+              onClick={() => setShowDeleteModal(false)}
+            >
+              {t.editor.cancel || 'Anuluj'}
+            </button>
+            <button 
+              className="button button-primary" 
+              onClick={confirmDelete}
+              style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
+            >
+              {t.editor.delete || 'Usuń'}
+            </button>
+          </div>
+        }
+      >
+        <p>{t.collections.deleteConfirm || 'Czy na pewno chcesz usunąć ten zbiór? Wiersze w nim zawarte nie zostaną usunięte.'}</p>
+      </Modal>
     </div>
   );
 };

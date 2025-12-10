@@ -7,7 +7,7 @@ import { LanguageProvider } from './i18n/LanguageContext'
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((error) => {
+    navigator.serviceWorker.register('/PoeSet/sw.js').catch((error) => {
       console.log('Service Worker registration failed:', error);
     });
   });

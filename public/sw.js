@@ -1,22 +1,26 @@
 // Service Worker dla PWA
-const CACHE_NAME = 'poeset-v1';
+const CACHE_NAME = 'poeset-v1.0.2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  '/PoeSet/',
+  '/PoeSet/index.html',
+  '/PoeSet/manifest.json',
+  '/PoeSet/icon-192.png',
+  '/PoeSet/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(urlsToCache))
+      .catch(err => console.log('Cache failed:', err))
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
   );
 });
 
@@ -30,6 +34,6 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });

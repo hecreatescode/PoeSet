@@ -6,7 +6,9 @@ export interface PoemVersion {
   timestamp: string;
 }
 
-export type MoodType = 'happy' | 'sad' | 'neutral' | 'inspired' | 'melancholic' | 'excited' | 'calm' | 'anxious';
+export type MoodType = string; // Can be default moods or custom ones
+
+export const DEFAULT_MOODS = ['happy', 'sad', 'neutral', 'inspired', 'melancholic', 'excited', 'calm', 'anxious'] as const;
 
 export interface Poem {
   id: string;
@@ -92,14 +94,16 @@ export interface Settings {
   highContrast: boolean;
   reducedMotion: boolean;
   offlineMode: boolean;
+  customMoods: string[];
 }
 
-export type Screen = 'journal' | 'poems' | 'collections' | 'statistics' | 'settings';
+export type Screen = 'journal' | 'poems' | 'collections' | 'statistics' | 'settings' | 'templates' | 'goals';
 
 export interface PoemTemplate {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   structure: string;
-  example: string;
+  example?: string;
+  isCustom?: boolean;
 }

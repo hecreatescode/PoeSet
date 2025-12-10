@@ -11,6 +11,8 @@ const PoemsScreen = lazy(() => import('./components/PoemsScreen/PoemsScreen'));
 const CollectionsScreen = lazy(() => import('./components/CollectionsScreen/CollectionsScreen'));
 const StatisticsScreen = lazy(() => import('./components/StatisticsScreen/StatisticsScreen'));
 const SettingsScreen = lazy(() => import('./components/SettingsScreen/SettingsScreen'));
+const TemplatesScreen = lazy(() => import('./components/TemplatesScreen/TemplatesScreen'));
+const GoalsScreen = lazy(() => import('./components/GoalsScreen/GoalsScreen'));
 
 function App() {
   const { t } = useLanguage();
@@ -61,6 +63,10 @@ function App() {
         return <StatisticsScreen />;
       case 'settings':
         return <SettingsScreen />;
+      case 'templates':
+        return <TemplatesScreen onBack={() => setCurrentScreen('poems')} onUseTemplate={(template) => console.log('Using template:', template)} />;
+      case 'goals':
+        return <GoalsScreen />;
       default:
         return <JournalScreen />;
     }

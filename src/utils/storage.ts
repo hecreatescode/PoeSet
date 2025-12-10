@@ -1,12 +1,15 @@
 // System przechowywania danych w localStorage
-import type { Poem, Collection, Settings, DailyJournal, Goal, Achievement } from '../types';
+import type { Poem, Collection, Settings, DailyJournal, Goal, Achievement, PoemVersion, PoemTemplate } from '../types';
 
 const STORAGE_KEYS = {
   POEMS: 'poeset_poems',
   COLLECTIONS: 'poeset_collections',
   JOURNALS: 'poeset_journals',
   SETTINGS: 'poeset_settings',
+  TEMPLATES: 'poeset_templates',
 };
+
+const MAX_VERSIONS = 10; // Maksymalna liczba zapisanych wersji
 
 // Poems
 export const getPoems = (): Poem[] => {
@@ -19,6 +22,25 @@ export const savePoem = (poem: Poem): void => {
   const existingIndex = poems.findIndex(p => p.id === poem.id);
   
   if (existingIndex >= 0) {
+    const existingPoem = poems[existingIndex];
+    
+    // Zapisz wersję tylko jeśli treść się zmieniła
+    if (existingPoem.content !== poem.content) {
+      const versions = existingPoem.versions || [];
+      const newVersion: PoemVersion = {
+        id: `v_${Date.now()}`,
+        content: existingPoem.content,
+        timestamp: existingPoem.updatedAt,
+      };
+      
+      // Dodaj nową wersję na początku i ogranicz do MAX_VERSIONS
+      versions.unshift(newVersion);
+      poem.versions = versions.slice(0, MAX_VERSIONS);
+    } else {
+      // Zachowaj istniejące wersje jeśli treść się nie zmieniła
+      poem.versions = existingPoem.versions;
+    }
+    
     poems[existingIndex] = poem;
   } else {
     poems.push(poem);
@@ -58,6 +80,16 @@ export const saveCollection = (collection: Collection): void => {
 export const deleteCollection = (id: string): void => {
   const collections = getCollections().filter(c => c.id !== id);
   localStorage.setItem(STORAGE_KEYS.COLLECTIONS, JSON.stringify(collections));
+};
+
+export const addPoemToCollection = (poemId: string, collectionId: string): void => {
+  const poem = getPoems().find(p => p.id === poemId);
+  if (!poem) return;
+  
+  if (!poem.collectionIds.includes(collectionId)) {
+    poem.collectionIds.push(collectionId);
+    savePoem(poem);
+  }
 };
 
 // Daily Journals
@@ -101,6 +133,7 @@ export const getSettings = (): Settings => {
     highContrast: false,
     reducedMotion: false,
     offlineMode: true,
+    customMoods: [],
   };
 };
 
@@ -149,6 +182,61 @@ export const saveAchievement = (achievement: Achievement): void => {
     achievements.push(achievement);
   }
   localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(achievements));
+};
+
+// Templates
+export const getTemplates = (): PoemTemplate[] => {
+  const data = localStorage.getItem(STORAGE_KEYS.TEMPLATES);
+  const templates = data ? JSON.parse(data) : [];
+  
+  // Add default templates if none exist
+  if (templates.length === 0) {
+    const defaultTemplates: PoemTemplate[] = [
+      {
+        id: 'sonet',
+        name: 'Sonet',
+        structure: '14 wersów, 2 czterowiersze i 2 trzywiersze\nRym: ABBA ABBA CDC DCD\nMetrum: najczęściej jedenastozgłoskowiec',
+        example: 'Nie ten jest szczęśliwy, kto samym szczęściem,\nJeno ten, kto szczęściem dobrze władnąć umie;\nKto wie, że przyjemność w rozkoszy się dymie,\nA szczęście prawdziwe w spokoju niewieścim.',
+        isCustom: false,
+      },
+      {
+        id: 'haiku',
+        name: 'Haiku',
+        structure: '3 wersy: 5-7-5 sylab\nTematyka: natura, pora roku, ulotność\nBez rymu, prostota wyrazu',
+        example: 'Stary staw w ciszy,\nŻaba skacze do wody —\nPlusk w ciemnościach nocy.',
+        isCustom: false,
+      },
+      {
+        id: 'limerick',
+        name: 'Limerick',
+        structure: '5 wersów humorystycznych\nRym: AABBA\nWersy 1,2,5 dłuższe, 3,4 krótsze',
+        example: 'Był sobie raz człowiek z Krakowa,\nCo lubił wymyślać nowe słowa,\nAż pewnego razu,\nW samym środku frazu,\nZawiązał się językowy supełek — i już dłuższa wypowiedź była niemożliwa.',
+        isCustom: false,
+      },
+    ];
+    localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(defaultTemplates));
+    return defaultTemplates;
+  }
+  
+  return templates;
+};
+
+export const saveTemplate = (template: PoemTemplate): void => {
+  const templates = getTemplates();
+  const existingIndex = templates.findIndex(t => t.id === template.id);
+  
+  if (existingIndex >= 0) {
+    templates[existingIndex] = template;
+  } else {
+    templates.push(template);
+  }
+  
+  localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(templates));
+};
+
+export const deleteTemplate = (id: string): void => {
+  const templates = getTemplates().filter(t => t.id !== id);
+  localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(templates));
 };
 
 // Export/Backup

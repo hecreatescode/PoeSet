@@ -32,6 +32,14 @@ export const translations = {
       shown: 'pokazano',
       loadMore: 'Załaduj więcej',
       remaining: 'pozostało',
+      filters: 'Filtry',
+      dateFrom: 'Data od',
+      dateTo: 'Data do',
+      minLength: 'Min. długość',
+      maxLength: 'Maks. długość',
+      mood: 'Nastrój',
+      allMoods: 'Wszystkie nastroje',
+      clearFilters: 'Wyczyść filtry',
     },
     // Collections Screen
     collections: {
@@ -42,6 +50,8 @@ export const translations = {
       createFirst: 'Stwórz pierwszy zbiór!',
       poems: 'wierszy',
       poemsSingular: 'wiersz',
+      deleteCollection: 'Usuń zbiór',
+      deleteConfirm: 'Czy na pewno chcesz usunąć ten zbiór? Wiersze w nim zawarte nie zostaną usunięte.',
     },
     // Statistics Screen
     statistics: {
@@ -91,6 +101,13 @@ export const translations = {
       aboutDescription: 'Twój cyfrowy dziennik poetycki',
       version: 'Wersja',
       aboutText: 'Stwórz, organizuj i analizuj swoją poezję w minimalistycznym, eleganckim środowisku.',
+      features: 'Funkcje',
+      enableMarkdown: 'Włącz formatowanie Markdown',
+      enableSwipeGestures: 'Włącz gesty przesuwania',
+      layoutWidth: 'Szerokość układu',
+      narrow: 'Wąski',
+      wide: 'Szeroki',
+      full: 'Pełny',
     },
     // Poem Editor
     editor: {
@@ -100,6 +117,10 @@ export const translations = {
       addTag: 'Dodaj tag',
       saved: 'Zapisano',
       save: 'Zapisz',
+      delete: 'Usuń',
+      cancel: 'Anuluj',
+      deletePoem: 'Usuń wiersz',
+      deleteConfirm: 'Czy na pewno chcesz usunąć ten wiersz? Ta operacja jest nieodwracalna.',
     },
     // Poem Viewer
     viewer: {
@@ -108,6 +129,10 @@ export const translations = {
       delete: 'Usuń',
       share: 'Udostępnij',
       confirmDelete: 'Czy na pewno chcesz usunąć ten wiersz?',
+      versionHistory: 'Historia wersji',
+      currentVersion: 'Aktualna wersja',
+      version: 'Wersja',
+      restore: 'Przywróć',
     },
     // Collection Editor
     collectionEditor: {
@@ -368,16 +393,26 @@ export const translations = {
       shown: 'shown',
       loadMore: 'Load more',
       remaining: 'remaining',
+      filters: 'Filters',
+      dateFrom: 'Date from',
+      dateTo: 'Date to',
+      minLength: 'Min. length',
+      maxLength: 'Max. length',
+      mood: 'Mood',
+      allMoods: 'All moods',
+      clearFilters: 'Clear filters',
     },
     // Collections Screen
     collections: {
       title: 'Collections',
       subtitle: 'Organize your poetry',
       newCollection: 'New collection',
-      noCollections: "You don't have any collections yet.",
+      noCollections: 'You don\'t have any collections yet.',
       createFirst: 'Create your first collection!',
       poems: 'poems',
       poemsSingular: 'poem',
+      deleteCollection: 'Delete Collection',
+      deleteConfirm: 'Are you sure you want to delete this collection? The poems in it will not be deleted.',
     },
     // Statistics Screen
     statistics: {
@@ -427,6 +462,13 @@ export const translations = {
       aboutDescription: 'Your digital poetry journal',
       version: 'Version',
       aboutText: 'Create, organize and analyze your poetry in a minimalist, elegant environment.',
+      features: 'Features',
+      enableMarkdown: 'Enable Markdown formatting',
+      enableSwipeGestures: 'Enable swipe gestures',
+      layoutWidth: 'Layout width',
+      narrow: 'Narrow',
+      wide: 'Wide',
+      full: 'Full',
     },
     // Poem Editor
     editor: {
@@ -436,6 +478,10 @@ export const translations = {
       addTag: 'Add tag',
       saved: 'Saved',
       save: 'Save',
+      delete: 'Delete',
+      cancel: 'Cancel',
+      deletePoem: 'Delete Poem',
+      deleteConfirm: 'Are you sure you want to delete this poem? This action cannot be undone.',
     },
     // Poem Viewer
     viewer: {
@@ -444,6 +490,10 @@ export const translations = {
       delete: 'Delete',
       share: 'Share',
       confirmDelete: 'Are you sure you want to delete this poem?',
+      versionHistory: 'Version History',
+      currentVersion: 'Current version',
+      version: 'Version',
+      restore: 'Restore',
     },
     // Collection Editor
     collectionEditor: {
