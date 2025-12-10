@@ -10,7 +10,9 @@ export class MarkdownParser {
 
     // Bold
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+    // Underline (przed italic _)
+    html = html.replace(/__(.+?)__/g, '<u>$1</u>');
 
     // Italic
     html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');

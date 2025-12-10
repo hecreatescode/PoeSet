@@ -3,10 +3,11 @@ import { X, Edit, Trash2, Share2, History, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import type { Poem } from '../../types';
-import { deletePoem, savePoem } from '../../utils/storage';
+import { deletePoem, savePoem, getSettings } from '../../utils/storage';
 import PoemEditor from '../PoemEditor/PoemEditor';
 import Modal from '../Modal/Modal';
 import { useLanguage } from '../../i18n/useLanguage';
+import { MarkdownParser } from '../../utils/markdown';
 
 interface PoemViewerProps {
   poem: Poem;
@@ -20,6 +21,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const { t } = useLanguage();
+  const settings = getSettings();
 
   const handleDelete = () => {
     setShowDeleteModal(true);
@@ -177,14 +179,26 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
           </h1>
         )}
         
-        <p className="font-serif" style={{ 
-          fontSize: '1.125rem',
-          lineHeight: 1.8,
-          whiteSpace: 'pre-wrap',
-          marginBottom: 'var(--spacing-xl)',
-        }}>
-          {poem.content}
-        </p>
+        {settings.enableMarkdown ? (
+          <div 
+            className="font-serif markdown-preview" 
+            style={{ 
+              fontSize: '1.125rem',
+              lineHeight: 1.8,
+              marginBottom: 'var(--spacing-xl)',
+            }}
+            dangerouslySetInnerHTML={{ __html: MarkdownParser.parse(poem.content) }}
+          />
+        ) : (
+          <p className="font-serif" style={{ 
+            fontSize: '1.125rem',
+            lineHeight: 1.8,
+            whiteSpace: 'pre-wrap',
+            marginBottom: 'var(--spacing-xl)',
+          }}>
+            {poem.content}
+          </p>
+        )}
 
         <div style={{ marginTop: 'auto' }}>
           <p className="text-secondary" style={{ 

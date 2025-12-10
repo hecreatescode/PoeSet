@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Search, Filter, CheckSquare, Trash2, FolderPlus } from 'lucide-react';
 import type { Poem, MoodType } from '../../types';
-import { getPoems, deletePoem, addPoemToCollection, getCollections } from '../../utils/storage';
+import { getPoems, deletePoem, addPoemToCollection, getCollections, getSettings } from '../../utils/storage';
 import { format } from 'date-fns';
 import { pl, enUS } from 'date-fns/locale';
 import PoemViewer from '../PoemViewer/PoemViewer';
 import { useLanguage } from '../../i18n/useLanguage';
 import Tooltip from '../Tooltip/Tooltip';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { MarkdownParser } from '../../utils/markdown';
 
 const POEMS_PER_PAGE = 20;
 
@@ -18,6 +19,7 @@ const PoemsScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(null);
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'alphabetical'>('newest');
+  const settings = getSettings();
   const [displayCount, setDisplayCount] = useState(POEMS_PER_PAGE);
   const [showFilters, setShowFilters] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
@@ -468,15 +470,28 @@ const PoemsScreen: React.FC = () => {
                   <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1rem' }}>
                     {format(new Date(poem.date), 'd MMMM yyyy', { locale: dateLocale })}
                   </p>
-                <p style={{ 
-                  whiteSpace: 'pre-wrap', 
-                  lineHeight: 1.6,
-                  maxHeight: '100px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {poem.content}
-                </p>
+                {settings.enableMarkdown ? (
+                  <div 
+                    className="markdown-preview"
+                    style={{ 
+                      lineHeight: 1.6,
+                      maxHeight: '100px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: MarkdownParser.parse(poem.content.substring(0, 200) + (poem.content.length > 200 ? '...' : '')) }}
+                  />
+                ) : (
+                  <p style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    lineHeight: 1.6,
+                    maxHeight: '100px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {poem.content}
+                  </p>
+                )}
                 {poem.tags.length > 0 && (
                   <div style={{ 
                     marginTop: '1rem', 
