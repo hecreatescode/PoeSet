@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Upload, Type, AlignLeft, Layout, Palette, Eye, Maximize, Languages, Smile, Plus, X } from 'lucide-react';
+import { FileText, Download, Upload, Type, AlignLeft, Layout, Palette, Eye, Maximize, Languages, Smile, Plus, X, Save, HardDrive } from 'lucide-react';
 import type { Settings } from '../../types';
-import { getSettings, saveSettings, exportAllData, importAllData } from '../../utils/storage';
+import { getSettings, saveSettings, exportAllData, importAllData, downloadBackup, startAutoBackup, stopAutoBackup } from '../../utils/storage';
 import { useLanguage } from '../../i18n/useLanguage';
 import { DEFAULT_MOODS } from '../../types';
 
@@ -41,6 +41,17 @@ const SettingsScreen: React.FC = () => {
 
   useEffect(() => {
     applySettings(settings);
+    
+    // Handle auto-backup
+    if (settings.autoBackup) {
+      startAutoBackup(settings.autoBackupInterval || 30);
+    } else {
+      stopAutoBackup();
+    }
+    
+    return () => {
+      stopAutoBackup();
+    };
   }, [settings, applySettings]);
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
@@ -104,12 +115,12 @@ const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <div>
-      <header className="mb-xl">
-        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 300 }}>
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'var(--spacing-md)' }}>
+      <header className="mb-xl" style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.5rem', fontWeight: 300 }}>
           {t.settings.title}
         </h1>
-        <p className="text-secondary">{t.settings.subtitle}</p>
+        <p className="text-secondary" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>{t.settings.subtitle}</p>
       </header>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
@@ -119,7 +130,11 @@ const SettingsScreen: React.FC = () => {
             <Palette size={20} />
             {t.settings.theme}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 'var(--spacing-sm)' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+            gap: 'var(--spacing-sm)'
+          }}>
             <button
               className={`button ${settings.theme === 'light' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('theme', 'light')}
@@ -171,7 +186,7 @@ const SettingsScreen: React.FC = () => {
             <Type size={20} />
             {t.settings.font}
           </h3>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${settings.fontFamily === 'serif' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontFamily', 'serif')}
@@ -193,7 +208,7 @@ const SettingsScreen: React.FC = () => {
             <Languages size={20} />
             Język / Language
           </h3>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${language === 'pl' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => setLanguage('pl')}
@@ -215,7 +230,7 @@ const SettingsScreen: React.FC = () => {
             <AlignLeft size={20} />
             {t.settings.lineSpacing}
           </h3>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${settings.lineSpacing === 'compact' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('lineSpacing', 'compact')}
@@ -386,11 +401,45 @@ const SettingsScreen: React.FC = () => {
         {/* Backup */}
         <div className="card" style={{ cursor: 'default' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Download size={20} />
+            <HardDrive size={20} />
             {t.settings.backup}
           </h3>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-            <button className="button button-primary" onClick={handleExport}>
+          
+          <div style={{ marginBottom: 'var(--spacing-md)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer', marginBottom: 'var(--spacing-sm)' }}>
+              <input
+                type="checkbox"
+                checked={settings.autoBackup || false}
+                onChange={(e) => updateSetting('autoBackup', e.target.checked)}
+                style={{ width: '18px', height: '18px' }}
+              />
+              <span>Automatyczne kopie zapasowe</span>
+            </label>
+            
+            {settings.autoBackup && (
+              <div style={{ marginLeft: '26px', marginTop: '0.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
+                  Częstotliwość (minuty):
+                </label>
+                <input
+                  type="number"
+                  min="5"
+                  max="120"
+                  value={settings.autoBackupInterval || 30}
+                  onChange={(e) => updateSetting('autoBackupInterval', parseInt(e.target.value) || 30)}
+                  className="input"
+                  style={{ width: '100px' }}
+                />
+              </div>
+            )}
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-sm)' }}>
+            <button className="button button-primary" onClick={() => downloadBackup()}>
+              <Save size={18} />
+              Pobierz kopię
+            </button>
+            <button className="button button-secondary" onClick={handleExport}>
               <Download size={18} />
               {t.settings.export}
             </button>
@@ -399,6 +448,10 @@ const SettingsScreen: React.FC = () => {
               {t.settings.import}
             </button>
           </div>
+          
+          <p style={{ marginTop: 'var(--spacing-sm)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            💾 Dane są zapisywane lokalnie w przeglądarce (localStorage + IndexedDB)
+          </p>
         </div>
 
         {/* Custom Moods */}

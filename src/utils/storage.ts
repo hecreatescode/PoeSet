@@ -11,6 +11,63 @@ const STORAGE_KEYS = {
 
 const MAX_VERSIONS = 10; // Maksymalna liczba zapisanych wersji
 
+// Auto-backup system
+let autoBackupInterval: number | null = null;
+
+export const startAutoBackup = (intervalMinutes: number = 30): void => {
+  if (autoBackupInterval) {
+    clearInterval(autoBackupInterval);
+  }
+  
+  autoBackupInterval = window.setInterval(() => {
+    const data = exportAllData();
+    try {
+      // Save to IndexedDB for persistence
+      if ('indexedDB' in window) {
+        const request = indexedDB.open('PoeSetBackup', 1);
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains('backups')) {
+            db.createObjectStore('backups', { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = () => {
+          const db = request.result;
+          const transaction = db.transaction(['backups'], 'readwrite');
+          const store = transaction.objectStore('backups');
+          store.put({
+            id: 'latest',
+            data: data,
+            timestamp: new Date().toISOString(),
+          });
+        };
+      }
+    } catch (error) {
+      console.error('Auto-backup failed:', error);
+    }
+  }, intervalMinutes * 60 * 1000);
+};
+
+export const stopAutoBackup = (): void => {
+  if (autoBackupInterval) {
+    clearInterval(autoBackupInterval);
+    autoBackupInterval = null;
+  }
+};
+
+export const downloadBackup = (): void => {
+  const data = exportAllData();
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `poeset-backup-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 // Poems
 export const getPoems = (): Poem[] => {
   const data = localStorage.getItem(STORAGE_KEYS.POEMS);
@@ -134,6 +191,8 @@ export const getSettings = (): Settings => {
     reducedMotion: false,
     offlineMode: true,
     customMoods: [],
+    autoBackup: false,
+    autoBackupInterval: 30,
   };
   
   if (!data) return defaultSettings;
@@ -144,6 +203,8 @@ export const getSettings = (): Settings => {
     ...defaultSettings,
     ...savedSettings,
     customMoods: savedSettings.customMoods || [],
+    autoBackup: savedSettings.autoBackup || false,
+    autoBackupInterval: savedSettings.autoBackupInterval || 30,
   };
 };
 

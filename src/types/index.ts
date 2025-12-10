@@ -95,6 +95,8 @@ export interface Settings {
   reducedMotion: boolean;
   offlineMode: boolean;
   customMoods: string[];
+  autoBackup?: boolean;
+  autoBackupInterval?: number; // minutes
 }
 
 export type Screen = 'journal' | 'poems' | 'collections' | 'statistics' | 'settings' | 'templates' | 'goals';
