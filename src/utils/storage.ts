@@ -118,7 +118,7 @@ export const saveJournal = (journal: DailyJournal): void => {
 // Settings
 export const getSettings = (): Settings => {
   const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-  return data ? JSON.parse(data) : {
+  const defaultSettings: Settings = {
     theme: 'light',
     fontFamily: 'serif',
     fontSize: 'medium',
@@ -134,6 +134,16 @@ export const getSettings = (): Settings => {
     reducedMotion: false,
     offlineMode: true,
     customMoods: [],
+  };
+  
+  if (!data) return defaultSettings;
+  
+  const savedSettings = JSON.parse(data);
+  // Merge with defaults to ensure all properties exist
+  return {
+    ...defaultSettings,
+    ...savedSettings,
+    customMoods: savedSettings.customMoods || [],
   };
 };
 

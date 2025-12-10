@@ -86,18 +86,20 @@ const SettingsScreen: React.FC = () => {
     const mood = newMood.trim();
     if (!mood) return;
     
-    if (settings.customMoods.includes(mood)) {
+    const currentMoods = settings.customMoods || [];
+    if (currentMoods.includes(mood)) {
       alert('Ten nastrój już istnieje!');
       return;
     }
     
-    const newCustomMoods = [...settings.customMoods, mood];
+    const newCustomMoods = [...currentMoods, mood];
     updateSetting('customMoods', newCustomMoods);
     setNewMood('');
   };
 
   const handleRemoveCustomMood = (mood: string) => {
-    const newCustomMoods = settings.customMoods.filter(m => m !== mood);
+    const currentMoods = settings.customMoods || [];
+    const newCustomMoods = currentMoods.filter(m => m !== mood);
     updateSetting('customMoods', newCustomMoods);
   };
 
@@ -431,13 +433,13 @@ const SettingsScreen: React.FC = () => {
             </button>
           </div>
 
-          {settings.customMoods.length > 0 && (
+          {(settings.customMoods || []).length > 0 && (
             <div>
               <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.5rem' }}>
                 Twoje nastroje:
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {settings.customMoods.map(mood => (
+                {(settings.customMoods || []).map(mood => (
                   <div
                     key={mood}
                     style={{
