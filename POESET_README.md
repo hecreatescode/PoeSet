@@ -2,7 +2,7 @@
 
 **PoeSet** to elegancka, minimalistyczna aplikacja webowa do pisania, organizowania i analizowania poezji. Inspirowana estetyką vintage i duchem Edgara Allana Poe.
 
-![PoeSet](https://img.shields.io/badge/version-1.0.0-blue)
+![PoeSet](https://img.shields.io/badge/version-1.0.3-blue)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
 
@@ -33,6 +33,38 @@
 - Najbardziej twórcza godzina
 - Średnia długość wiersza
 - Najczęściej używane tagi
+- **NOWE w 1.0.3**: Analiza częstotliwości słów (top 20 najczęściej używanych)
+
+### 📝 Edytor wierszy
+- Auto-zapis co 3 sekundy
+- **NOWE w 1.0.3**: Dyktowanie głosowe (speech-to-text)
+- **NOWE v1.0.3**: Pasek formatowania tekstu (pogrubienie, kursywa, podkreślenie)
+- Markdown preview z podglądem na żywo
+- Historia wersji (do 10 ostatnich wersji)
+- Szyfrowanie wierszy hasłem (AES-GCM-256)
+- Śledzenie nastroju
+- **NOWE v1.0.3**: Niestandardowe nastroje (dodaj własne)
+- Automatyczne sugestie tagów
+- Duplikacja wierszy
+
+### 📋 Szablony
+- **NOWE v1.0.3**: Pełny ekran zarządzania szablonami
+- Domyślne szablony: Sonet, Haiku, Limerick
+- **NOWE v1.0.3**: Tworzenie własnych szablonów
+- Edycja i usuwanie niestandardowych szablonów
+- Przykłady użycia dla każdego szablonu
+
+### 📦 Operacje grupowe
+- **NOWE v1.0.3**: Tryb zaznaczania wielu wierszy
+- **NOWE v1.0.3**: Usuwanie wielu wierszy naraz
+- **NOWE v1.0.3**: Dodawanie wielu wierszy do kolekcji jednocześnie
+- Zaznacz wszystkie z filtrem
+
+### 🎯 Cele i osiągnięcia
+- System celów (dzienny, tygodniowy, miesięczny, niestandardowy)
+- Automatyczne śledzenie postępów
+- 4 domyślne osiągnięcia do odblokowania
+- Paski postępu z wizualizacją
 
 ### ⚙️ Ustawienia
 - **3 motywy**: Light (papierowy), Dark (atramentowy), Sepia (dziennik)
@@ -141,14 +173,21 @@ MIT License - możesz swobodnie używać, modyfikować i dystrybuować.
 
 Zgłaszaj błędy i propozycje przez GitHub Issues.
 
-## 💡 Przyszłe funkcje (roadmap)
+## 📋 Wersja 1.0.3 - Co nowego?
 
-- [ ] Analiza stylu poetyckiego przez AI
-- [ ] Tryb "Poe Sessions" - sesje pisania z timerem
-- [ ] Generowanie PDF z profesjonalnym layoutem
-- [ ] Synchronizacja w chmurze
-- [ ] Wersja mobilna (PWA)
-- [ ] Eksport do różnych formatów (PDF, EPUB)
+### Główne funkcje:
+1. **🎤 Dyktowanie głosowe** - Piszesz wiersze głosem dzięki Web Speech API
+2. **📋 Szablony niestandardowe** - Twórz własne szablony wierszy z pełną kontrolą
+3. **☑️ Operacje grupowe** - Zaznaczaj i zarządzaj wieloma wierszami naraz
+4. **😊 Własne nastroje** - Dodaj niestandardowe nastroje oprócz 8 domyślnych
+5. **✍️ Formatowanie tekstu** - Pogrubiaj, kursywuj, podkreślaj tekst w edytorze
+6. **📊 Analiza słów** - Zobacz 20 najczęściej używanych słów w swojej poezji
+
+### Naprawione błędy:
+- Poprawiona obsługa React Compiler
+- Naprawione błędy TypeScript
+- Lepsza obsługa błędów w rozpoznawaniu mowy
+- Optymalizacja wydajności
 
 ---
 
