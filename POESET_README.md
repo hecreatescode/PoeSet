@@ -2,7 +2,7 @@
 
 **PoeSet** to elegancka, minimalistyczna aplikacja webowa do pisania, organizowania i analizowania poezji. Inspirowana estetyką vintage i duchem Edgara Allana Poe.
 
-![PoeSet](https://img.shields.io/badge/version-3.0.0-blue)
+![PoeSet](https://img.shields.io/badge/version-2.0.0-blue)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
 
