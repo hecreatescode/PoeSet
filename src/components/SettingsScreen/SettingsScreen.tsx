@@ -317,35 +317,26 @@ const SettingsScreen: React.FC = () => {
             <Type size={20} />
             {t.accessibility.fontSize}
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button
-              className={`button ${settings.fontSize === 'small' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('fontSize', 'small')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.accessibility.small}
-            </button>
-            <button
-              className={`button ${settings.fontSize === 'medium' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('fontSize', 'medium')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.accessibility.medium}
-            </button>
-            <button
-              className={`button ${settings.fontSize === 'large' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('fontSize', 'large')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.accessibility.large}
-            </button>
-            <button
-              className={`button ${settings.fontSize === 'xlarge' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('fontSize', 'xlarge')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.accessibility.xlarge}
-            </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <input
+              type="range"
+              min="0"
+              max="3"
+              step="1"
+              value={settings.fontSize === 'small' ? 0 : settings.fontSize === 'medium' ? 1 : settings.fontSize === 'large' ? 2 : 3}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                const sizes = ['small', 'medium', 'large', 'xlarge'] as const;
+                updateSetting('fontSize', sizes[value]);
+              }}
+              style={{ width: '100%', cursor: 'pointer' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', opacity: 0.7, marginTop: '-0.5rem' }}>
+              <span>{t.accessibility.small}</span>
+              <span>{t.accessibility.medium}</span>
+              <span>{t.accessibility.large}</span>
+              <span>{t.accessibility.xlarge}</span>
+            </div>
           </div>
         </div>
 
@@ -355,35 +346,26 @@ const SettingsScreen: React.FC = () => {
             <Maximize size={20} />
             {t.settings.layoutWidth}
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <button
-              className={`button ${settings.layoutWidth === 'narrow' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('layoutWidth', 'narrow')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.settings.narrow}
-            </button>
-            <button
-              className={`button ${settings.layoutWidth === 'medium' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('layoutWidth', 'medium')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.accessibility.medium}
-            </button>
-            <button
-              className={`button ${settings.layoutWidth === 'wide' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('layoutWidth', 'wide')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.settings.wide}
-            </button>
-            <button
-              className={`button ${settings.layoutWidth === 'full' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('layoutWidth', 'full')}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {t.settings.full}
-            </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <input
+              type="range"
+              min="0"
+              max="3"
+              step="1"
+              value={settings.layoutWidth === 'narrow' ? 0 : settings.layoutWidth === 'medium' ? 1 : settings.layoutWidth === 'wide' ? 2 : 3}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                const widths = ['narrow', 'medium', 'wide', 'full'] as const;
+                updateSetting('layoutWidth', widths[value]);
+              }}
+              style={{ width: '100%', cursor: 'pointer' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', opacity: 0.7, marginTop: '-0.5rem' }}>
+              <span>{t.settings.narrow}</span>
+              <span>{t.accessibility.medium}</span>
+              <span>{t.settings.wide}</span>
+              <span>{t.settings.full}</span>
+            </div>
           </div>
         </div>
 
