@@ -112,13 +112,13 @@ npm run dev
   - Improved accessibility features
 
 ### Version 1.0.1
-- ✅ Added bilingual support (Polish/English)
-- ✅ Auto-detect browser language
-- ✅ Fixed TypeScript compilation errors
-- ✅ Fixed Fast Refresh issues
-- ✅ Added lazy loading for better performance
-- ✅ Fixed date formatting for both languages
-- ✅ Improved translations coverage
+- Added bilingual support (Polish/English)
+- Auto-detect browser language
+- Fixed TypeScript compilation errors
+- Fixed Fast Refresh issues
+- Added lazy loading for better performance
+- Fixed date formatting for both languages
+- Improved translations coverage
 
 ### Version 1.0.0
 - 🎉 Initial release
