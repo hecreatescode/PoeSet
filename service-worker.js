@@ -1,4 +1,4 @@
-const CACHE_NAME = 'poeset-v1.0.2';
+const CACHE_NAME = 'poeset-v2.0.0';
 const urlsToCache = [
   '/PoeSet/',
   '/PoeSet/index.html',
