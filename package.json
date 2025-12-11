@@ -3,6 +3,26 @@
   "private": true,
   "version": "1.0.3",
   "type": "module",
+  "description": "A minimalist, offline-first Progressive Web App for writing, organizing, and analyzing poetry",
+  "author": "hecreatescode",
+  "license": "MIT",
+  "homepage": "https://hecreatescode.github.io/PoeSet/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hecreatescode/PoeSet.git"
+  },
+  "keywords": [
+    "poetry",
+    "journal",
+    "pwa",
+    "react",
+    "typescript",
+    "offline-first",
+    "writing",
+    "creative-writing",
+    "markdown",
+    "voice-dictation"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

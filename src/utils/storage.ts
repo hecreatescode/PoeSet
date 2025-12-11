@@ -193,6 +193,9 @@ export const getSettings = (): Settings => {
     customMoods: [],
     autoBackup: false,
     autoBackupInterval: 30,
+    customFonts: [],
+    selectedCustomFont: undefined,
+    useFileSystem: false,
   };
   
   if (!data) return defaultSettings;
@@ -205,6 +208,7 @@ export const getSettings = (): Settings => {
     customMoods: savedSettings.customMoods || [],
     autoBackup: savedSettings.autoBackup || false,
     autoBackupInterval: savedSettings.autoBackupInterval || 30,
+    useFileSystem: savedSettings.useFileSystem || false,
   };
 };
 

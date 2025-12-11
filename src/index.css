@@ -147,3 +147,34 @@ body[data-theme="sepia"] ::-webkit-scrollbar-thumb {
   background: var(--sepia-border);
   border-radius: var(--radius-full);
 }
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body:not(.reduced-motion) * {
+  animation-duration: 0.2s;
+  animation-timing-function: ease-in-out;
+}
+
+body:not(.reduced-motion) .card,
+body:not(.reduced-motion) .button {
+  transition: all 0.2s ease-in-out;
+}
+
+body:not(.reduced-motion) .main-content > * {
+  animation: fadeIn 0.3s ease-out;
+}

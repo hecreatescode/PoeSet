@@ -9,6 +9,7 @@ const SettingsScreen: React.FC = () => {
   const [settings, setSettings] = useState<Settings>(getSettings());
   const { language, setLanguage, t } = useLanguage();
   const [newMood, setNewMood] = useState('');
+  const [newFont, setNewFont] = useState('');
 
   const applySettings = React.useCallback((newSettings: Settings) => {
     document.body.setAttribute('data-theme', newSettings.theme);
@@ -41,6 +42,22 @@ const SettingsScreen: React.FC = () => {
 
   useEffect(() => {
     applySettings(settings);
+    
+    // Load custom fonts
+    const customFonts = settings.customFonts || [];
+    customFonts.forEach(font => {
+      const link = document.createElement('link');
+      link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
+      link.rel = 'stylesheet';
+      if (!document.querySelector(`link[href="${link.href}"]`)) {
+        document.head.appendChild(link);
+      }
+    });
+    
+    // Apply selected custom font
+    if (settings.selectedCustomFont) {
+      document.body.style.fontFamily = `"${settings.selectedCustomFont}", ${settings.fontFamily}`;
+    }
     
     // Handle auto-backup
     if (settings.autoBackup) {
@@ -114,6 +131,48 @@ const SettingsScreen: React.FC = () => {
     updateSetting('customMoods', newCustomMoods);
   };
 
+  const handleAddCustomFont = () => {
+    const font = newFont.trim();
+    if (!font) return;
+    
+    const currentFonts = settings.customFonts || [];
+    if (currentFonts.includes(font)) {
+      alert('Ta czcionka jest już dodana!');
+      return;
+    }
+    
+    // Load Google Font dynamically
+    const link = document.createElement('link');
+    link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    
+    const newCustomFonts = [...currentFonts, font];
+    updateSetting('customFonts', newCustomFonts);
+    setNewFont('');
+  };
+
+  const handleRemoveCustomFont = (font: string) => {
+    const currentFonts = settings.customFonts || [];
+    const newCustomFonts = currentFonts.filter(f => f !== font);
+    updateSetting('customFonts', newCustomFonts);
+    
+    // If this was the selected font, reset to default
+    if (settings.selectedCustomFont === font) {
+      updateSetting('selectedCustomFont', undefined);
+      document.body.style.fontFamily = '';
+    }
+  };
+
+  const handleSelectCustomFont = (font: string | undefined) => {
+    updateSetting('selectedCustomFont', font);
+    if (font) {
+      document.body.style.fontFamily = `"${font}", ${settings.fontFamily}`;
+    } else {
+      document.body.style.fontFamily = '';
+    }
+  };
+
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'var(--spacing-md)' }}>
       <header className="mb-xl" style={{ textAlign: 'center' }}>
@@ -132,7 +191,7 @@ const SettingsScreen: React.FC = () => {
           </h3>
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', 
             gap: 'var(--spacing-sm)'
           }}>
             <button
@@ -186,7 +245,7 @@ const SettingsScreen: React.FC = () => {
             <Type size={20} />
             {t.settings.font}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${settings.fontFamily === 'serif' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontFamily', 'serif')}
@@ -208,7 +267,7 @@ const SettingsScreen: React.FC = () => {
             <Languages size={20} />
             Język / Language
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${language === 'pl' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => setLanguage('pl')}
@@ -230,7 +289,7 @@ const SettingsScreen: React.FC = () => {
             <AlignLeft size={20} />
             {t.settings.lineSpacing}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${settings.lineSpacing === 'compact' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('lineSpacing', 'compact')}
@@ -434,7 +493,7 @@ const SettingsScreen: React.FC = () => {
             )}
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
             <button className="button button-primary" onClick={() => downloadBackup()}>
               <Save size={18} />
               Pobierz kopię
@@ -448,10 +507,108 @@ const SettingsScreen: React.FC = () => {
               {t.settings.import}
             </button>
           </div>
+
+          <div style={{ marginTop: 'var(--spacing-md)', paddingTop: 'var(--spacing-md)', borderTop: '1px solid var(--border-color)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer', marginBottom: 'var(--spacing-sm)' }}>
+              <input
+                type="checkbox"
+                checked={settings.useFileSystem || false}
+                onChange={(e) => updateSetting('useFileSystem', e.target.checked)}
+                style={{ width: '18px', height: '18px' }}
+              />
+              <span>Zapisuj dane bezpośrednio na urządzeniu</span>
+            </label>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginLeft: '26px' }}>
+              📁 Używa File System Access API (wymaga nowoczesnej przeglądarki)
+            </p>
+          </div>
           
           <p style={{ marginTop: 'var(--spacing-sm)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            💾 Dane są zapisywane lokalnie w przeglądarce (localStorage + IndexedDB)
+            💾 {settings.useFileSystem ? 'Dane zapisywane bezpośrednio na dysku' : 'Dane zapisywane w przeglądarce (localStorage + IndexedDB)'}
           </p>
+        </div>
+
+        {/* Custom Google Fonts */}
+        <div className="card" style={{ cursor: 'default' }}>
+          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <Type size={20} />
+            Niestandardowe czcionki Google
+          </h3>
+          
+          <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: 'var(--spacing-md)' }}>
+            Dodaj czcionki z Google Fonts (np. "Roboto", "Playfair Display", "Lora")
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--spacing-md)' }}>
+            <input
+              type="text"
+              className="input"
+              value={newFont}
+              onChange={(e) => setNewFont(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAddCustomFont()}
+              placeholder="Nazwa czcionki Google..."
+              style={{ flex: 1 }}
+            />
+            <button 
+              className="button button-primary"
+              onClick={handleAddCustomFont}
+              disabled={!newFont.trim()}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <Plus size={18} />
+              Dodaj
+            </button>
+          </div>
+
+          {(settings.customFonts || []).length > 0 && (
+            <div style={{ marginBottom: 'var(--spacing-md)' }}>
+              <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.5rem' }}>
+                Dostępne czcionki:
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem' }}>
+                <button
+                  className={`button ${!settings.selectedCustomFont ? 'button-primary' : 'button-secondary'}`}
+                  onClick={() => handleSelectCustomFont(undefined)}
+                  style={{ fontSize: '0.875rem' }}
+                >
+                  Domyślna
+                </button>
+                {(settings.customFonts || []).map(font => (
+                  <div key={font} style={{ position: 'relative' }}>
+                    <button
+                      className={`button ${settings.selectedCustomFont === font ? 'button-primary' : 'button-secondary'}`}
+                      onClick={() => handleSelectCustomFont(font)}
+                      style={{ width: '100%', fontSize: '0.875rem', fontFamily: `"${font}", ${settings.fontFamily}` }}
+                    >
+                      {font}
+                    </button>
+                    <button
+                      onClick={() => handleRemoveCustomFont(font)}
+                      style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        right: '-8px',
+                        background: 'var(--accent-color)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '24px',
+                        height: '24px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 0,
+                      }}
+                      title="Usuń"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Custom Moods */}
