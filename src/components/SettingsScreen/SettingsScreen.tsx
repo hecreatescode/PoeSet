@@ -317,28 +317,32 @@ const SettingsScreen: React.FC = () => {
             <Type size={20} />
             {t.accessibility.fontSize}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
               className={`button ${settings.fontSize === 'small' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontSize', 'small')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.accessibility.small}
             </button>
             <button
               className={`button ${settings.fontSize === 'medium' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontSize', 'medium')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.accessibility.medium}
             </button>
             <button
               className={`button ${settings.fontSize === 'large' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontSize', 'large')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.accessibility.large}
             </button>
             <button
               className={`button ${settings.fontSize === 'xlarge' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontSize', 'xlarge')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.accessibility.xlarge}
             </button>
@@ -351,28 +355,32 @@ const SettingsScreen: React.FC = () => {
             <Maximize size={20} />
             {t.settings.layoutWidth}
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
               className={`button ${settings.layoutWidth === 'narrow' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('layoutWidth', 'narrow')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.settings.narrow}
             </button>
             <button
               className={`button ${settings.layoutWidth === 'medium' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('layoutWidth', 'medium')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.accessibility.medium}
             </button>
             <button
               className={`button ${settings.layoutWidth === 'wide' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('layoutWidth', 'wide')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.settings.wide}
             </button>
             <button
               className={`button ${settings.layoutWidth === 'full' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('layoutWidth', 'full')}
+              style={{ width: '100%', justifyContent: 'center' }}
             >
               {t.settings.full}
             </button>
