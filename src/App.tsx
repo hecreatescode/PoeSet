@@ -17,17 +17,41 @@ const GoalsScreen = lazy(() => import('./components/GoalsScreen/GoalsScreen'));
 function App() {
   const { t } = useLanguage();
   const [currentScreen, setCurrentScreen] = useState<Screen>('journal');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum distance to trigger swipe (in pixels)
+  const minSwipeDistance = 50;
+
+  // Screen order for navigation
+  const screens: Screen[] = ['journal', 'poems', 'collections', 'statistics', 'settings'];
 
   // Loading spinner component
   const LoadingSpinner = () => (
     <div style={{ 
       display: 'flex', 
+      flexDirection: 'column',
       justifyContent: 'center', 
       alignItems: 'center', 
       height: '100vh',
-      color: 'var(--text-secondary)'
+      color: 'var(--text-secondary)',
+      gap: 'var(--spacing-md)',
     }}>
-      <div>{t.common.loading}</div>
+      <div style={{
+        width: '48px',
+        height: '48px',
+        border: '4px solid var(--border-color)',
+        borderTop: '4px solid var(--accent-color)',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite',
+      }} />
+      <div style={{ fontSize: '14px', opacity: 0.7 }}>
+        {t.common.loading}
+      </div>
     </div>
   );
 
@@ -38,6 +62,7 @@ function App() {
     document.body.classList.add(`font-${settings.fontFamily}`);
     document.body.classList.add(`font-size-${settings.fontSize || 'medium'}`);
     document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
+    document.body.classList.add(`layout-width-${settings.layoutWidth}`);
     
     if (settings.highContrast) {
       document.body.classList.add('high-contrast');
@@ -49,7 +74,68 @@ function App() {
     
     // Set initial screen from settings
     setCurrentScreen(settings.startView);
+
+    // PWA install prompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallPrompt(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  // Swipe gesture handlers
+  useEffect(() => {
+    const settings = getSettings();
+    if (!settings.enableSwipeGestures) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      setTouchEnd(null);
+      setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+      if (!touchStart || !touchEnd) return;
+      
+      const distance = touchStart - touchEnd;
+      const isLeftSwipe = distance > minSwipeDistance;
+      const isRightSwipe = distance < -minSwipeDistance;
+      
+      if (isLeftSwipe || isRightSwipe) {
+        const currentIndex = screens.indexOf(currentScreen);
+        
+        if (isLeftSwipe && currentIndex < screens.length - 1) {
+          // Swipe left - next screen
+          setCurrentScreen(screens[currentIndex + 1]);
+        } else if (isRightSwipe && currentIndex > 0) {
+          // Swipe right - previous screen
+          setCurrentScreen(screens[currentIndex - 1]);
+        }
+      }
+      
+      setTouchStart(null);
+      setTouchEnd(null);
+    };
+
+    document.addEventListener('touchstart', onTouchStart);
+    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [currentScreen, touchStart, touchEnd]);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -70,6 +156,20 @@ function App() {
       default:
         return <JournalScreen />;
     }
+  };
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      console.log('User accepted the install prompt');
+    }
+    
+    setDeferredPrompt(null);
+    setShowInstallPrompt(false);
   };
 
   return (
@@ -145,6 +245,44 @@ function App() {
           <span>{t.nav.settings}</span>
         </button>
       </nav>
+
+      {/* PWA Install Prompt */}
+      {showInstallPrompt && (
+        <div style={{
+          position: 'fixed',
+          bottom: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px',
+          padding: 'var(--spacing-md)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          zIndex: 1000,
+          maxWidth: '90%',
+          width: '320px',
+        }}>
+          <p style={{ margin: '0 0 var(--spacing-md) 0', fontSize: '14px' }}>
+            Zainstaluj PoeSet jako aplikację na swoim urządzeniu!
+          </p>
+          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+            <button 
+              className="button button-primary" 
+              onClick={handleInstallClick}
+              style={{ flex: 1 }}
+            >
+              Zainstaluj
+            </button>
+            <button 
+              className="button button-secondary" 
+              onClick={() => setShowInstallPrompt(false)}
+              style={{ flex: 1 }}
+            >
+              Później
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

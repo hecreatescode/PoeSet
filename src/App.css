@@ -13,6 +13,23 @@
   padding-bottom: 100px;
 }
 
+/* Layout width variants */
+body.layout-width-narrow .main-content {
+  max-width: 600px;
+}
+
+body.layout-width-medium .main-content {
+  max-width: 900px;
+}
+
+body.layout-width-wide .main-content {
+  max-width: 1200px;
+}
+
+body.layout-width-full .main-content {
+  max-width: 100%;
+}
+
 /* Navigation */
 .navigation {
   position: fixed;
@@ -387,58 +404,58 @@ body[data-theme="forest"] .button-secondary:hover {
 }
 
 body[data-theme="ocean"] {
-  background: #0f1e2e;
-  color: #d4e7f5;
-  --bg-primary: #0f1e2e;
-  --bg-secondary: #1a344a;
-  --text-primary: #d4e7f5;
-  --text-secondary: #8fa8c4;
-  --border-color: #1a3a5a;
-  --accent-color: #4da6ff;
+  background: #e8f4ff;
+  color: #1a3a5a;
+  --bg-primary: #e8f4ff;
+  --bg-secondary: #f5faff;
+  --text-primary: #1a3a5a;
+  --text-secondary: #5a7a9a;
+  --border-color: #b3d9ff;
+  --accent-color: #2196f3;
 }
 
 body[data-theme="ocean"] .navigation {
-  background: rgba(15, 30, 46, 0.9);
-  border-top-color: #1a3a5a;
+  background: rgba(232, 244, 255, 0.9);
+  border-top-color: #b3d9ff;
 }
 
 body[data-theme="ocean"] .nav-button {
-  color: #8fa8c4;
+  color: #5a7a9a;
 }
 
 body[data-theme="ocean"] .nav-button.active {
-  color: #4da6ff;
-  background: rgba(77, 166, 255, 0.2);
+  color: #2196f3;
+  background: rgba(33, 150, 243, 0.15);
 }
 
 body[data-theme="ocean"] .card {
-  background: #1a344a;
-  border: 1px solid #1a3a5a;
+  background: #f5faff;
+  border: 1px solid #b3d9ff;
 }
 
 body[data-theme="ocean"] .input {
-  background: #1a3a5a;
-  border-color: #2a4a6a;
-  color: #d4e7f5;
+  background: #f5faff;
+  border-color: #b3d9ff;
+  color: #1a3a5a;
 }
 
 body[data-theme="ocean"] .button-primary {
-  background: #4da6ff;
-  color: #0f1e2e;
+  background: #2196f3;
+  color: white;
 }
 
 body[data-theme="ocean"] .button-primary:hover {
-  background: #2d86df;
+  background: #1976d2;
 }
 
 body[data-theme="ocean"] .button-secondary {
   background: transparent;
-  color: #d4e7f5;
-  border-color: #2a4a6a;
+  color: #1a3a5a;
+  border-color: #b3d9ff;
 }
 
 body[data-theme="ocean"] .button-secondary:hover {
-  background: #1a3a5a;
+  background: #f5faff;
 }
 
 body[data-theme="rose"] {

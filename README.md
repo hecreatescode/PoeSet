@@ -3,202 +3,242 @@
   
   # PoeSet - Poet's Journal 📖
   
-  A minimalist, offline-first PWA application for writing and organizing poetry.
+  A minimalist, offline-first Progressive Web App for writing, organizing, and analyzing your poetry with advanced features and beautiful themes.
+  
+  [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://hecreatescode.github.io/PoeSet/)
+  [![Version](https://img.shields.io/badge/version-1.0.3-blue)](https://github.com/hecreatescode/PoeSet)
+  [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 </div>
 
 ## ✨ Features
 
-- 📝 **Journal** - Write daily poems with timestamps
-- 📚 **Library** - Search and sort all your poems
-- 📁 **Collections** - Organize poems into colorful collections
-- 📊 **Statistics** - Track your creativity and writing streaks
-- 🌍 **Bilingual** - Polish and English with automatic detection
-- 🎨 **7 themes** - Light, dark, sepia, midnight, forest, ocean, rose
-- 💾 **Offline-first** - Everything saved locally
-- 🔄 **Auto-save** - Automatic saving every 3 seconds
-- 📱 **PWA** - Installable on mobile like a native app
-- ⚡ **Lazy loading** - Performance optimization for large libraries
+### Core Functionality
+- 📝 **Daily Journal** - Write poems with timestamps and automatic saving every 3 seconds
+- 📚 **Smart Library** - Search, filter, and sort all your poems
+- 📁 **Collections** - Organize poems into custom collections with colors
+- 📊 **Analytics** - Track writing streaks, word counts, and productivity
+- 🎯 **Goals & Achievements** - Set daily/weekly/monthly targets with unlockables
 
-## 🚀 Install on Mobile
+### Writing Experience
+- 🎤 **Voice Dictation** - Speech-to-text using Web Speech API
+- 📋 **Templates** - Sonet, Haiku, Limerick + custom templates
+- ✍️ **Text Formatting** - Bold, italic, underline toolbar
+- 📑 **Markdown Support** - Live preview with split-screen editor
+- 🔄 **Version History** - Track up to 10 versions per poem
+- 🏷️ **Smart Tags** - Autocomplete based on existing tags
+- 😊 **Mood Tracking** - 8 default + unlimited custom moods
+- 🔐 **Encryption** - AES-GCM-256 for private poems
 
-1. Open **https://hecreatescode.github.io/PoeSet/** in your browser
-2. **Android**: Menu → "Add to Home Screen"
-3. **iOS**: Share → "Add to Home Screen"
+### Customization
+- 🎨 **7 Beautiful Themes** - Light, Dark, Sepia, Midnight, Forest, Ocean, Rose
+- 🔤 **Custom Google Fonts** - Add any font from Google Fonts
+- 📏 **Layout Options** - 4 width settings (narrow to full)
+- 🔠 **Font Sizes** - Small, Medium, Large, Extra Large
+- 📱 **Responsive Design** - Optimized for mobile and desktop
 
-## 💻 Development
+### Data & Export
+- 💾 **Multiple Storage Options** - localStorage, IndexedDB, or device files (File System API)
+- 📤 **Export Formats** - JSON, PDF, EPUB, Markdown, HTML
+- 📥 **Import** - Restore from backup files
+- 🔄 **Auto-Backup** - Configurable automatic backups (5-120 min)
+- 🌐 **Offline-First** - Full functionality without internet
+
+### Mobile & PWA
+- 📱 **Installable** - Add to home screen like native app
+- 👆 **Swipe Gestures** - Navigate between screens with swipes
+- 🔔 **Push Notifications** - Optional writing reminders
+- 🚀 **Service Worker** - Offline caching and fast loading
+- 📲 **Share Target** - Share poems via device sharing
+
+### Accessibility
+- ♿ **High Contrast Mode** - Better visibility
+- 🎬 **Reduced Motion** - Disable animations
+- 🌍 **Bilingual** - Polish and English with auto-detection
+- ⌨️ **Keyboard Shortcuts** - Esc to close, Enter to submit
+
+## 🚀 Quick Start
+
+### Install as PWA
+
+1. Visit **https://hecreatescode.github.io/PoeSet/**
+2. **Android/Chrome**: Menu (⋮) → "Install app" or "Add to Home Screen"
+3. **iOS/Safari**: Share (↑) → "Add to Home Screen"
+4. **Desktop**: Look for install icon in address bar
+
+### Local Development
 
 ```bash
+# Clone repository
+git clone https://github.com/hecreatescode/PoeSet.git
+cd PoeSet
+
+# Install dependencies
 npm install
+
+# Start dev server
 npm run dev
+
+# Build for production
+npm run build
+
+# Deploy to GitHub Pages
+npm run deploy
 ```
+
+## 🎨 Themes Preview
+
+| Theme | Description | Best For |
+|-------|-------------|----------|
+| **Light** | Clean paper-like (#f9f7f4) | Daytime writing |
+| **Dark** | Deep ink (#0f1419) | Night sessions |
+| **Sepia** | Vintage journal (#f4ecd8) | Classic feel |
+| **Midnight** | Dark blue (#1a1f3a) | Late-night creativity |
+| **Forest** | Dark green (#1a2f1a) | Nature inspiration |
+| **Ocean** | Light blue (#e8f4ff) | Calm creativity |
+| **Rose** | Soft pink (#ffe8f0) | Romantic poetry |
 
 ## 🔧 Tech Stack
 
-- React 19.2 + TypeScript
-- Vite 7.2
-- date-fns (Polish/English locale)
-- lucide-react icons
-- localStorage API
-- Service Worker (PWA)
-- i18n (Polish/English)
+- **Frontend**: React 19.2 + TypeScript
+- **Build Tool**: Vite 7.2
+- **Styling**: CSS Variables + Custom CSS
+- **Icons**: lucide-react
+- **Date Handling**: date-fns (with Polish locale)
+- **Storage**: localStorage + IndexedDB + File System API
+- **PWA**: Service Worker + Web App Manifest
+- **i18n**: Custom bilingual system (PL/EN)
+- **Voice**: Web Speech API
+- **Encryption**: Web Crypto API (AES-GCM-256)
+
+## 📊 Statistics & Analytics
+
+- **Word Count** - Total words across all poems
+- **Most Used Words** - Top 20 with visual frequency bars
+- **Writing Streaks** - Current and longest streaks
+- **Productivity Trends** - Poems per day/week/month
+- **Mood Distribution** - Emotional patterns in your poetry
+- **Time Analytics** - Best writing times and patterns
+
+## 🎯 Goals System
+
+Set and track writing goals:
+- **Daily**: Write X poems per day
+- **Weekly**: Maintain Y streak days
+- **Monthly**: Reach Z total words
+
+**Achievements**:
+- 🏆 First Poem - Write your first poem
+- 🔥 Week Warrior - 7-day writing streak
+- 📚 Collector - Create first collection
+- ✍️ Prolific - Write 50 poems
+
+## 💾 Storage Options
+
+1. **Browser Storage** (Default)
+   - localStorage for settings
+   - IndexedDB for auto-backups
+   - Works on all devices
+
+2. **Device Files** (Optional)
+   - File System Access API
+   - Direct file saving
+   - Requires modern browser
+
+3. **Manual Backup**
+   - Download JSON backups
+   - Import/restore anytime
+   - Cross-device transfer
 
 ## 📝 Changelog
 
-### Version 1.0.3 (Current)
-- ✨ **New Features:**
-  - **Speech-to-text dictation** - Voice input with microphone button in poem editor (Web Speech API)
-  - **Custom poem templates** - Create, edit, and manage your own templates with full CRUD operations
-  - **Bulk operations** - Select multiple poems for batch deletion or adding to collections
-  - **Custom moods** - Add unlimited custom moods beyond the 8 default options
-  - **Text formatting toolbar** - Bold, italic, and underline formatting in the editor
-  - **Word frequency analysis** - View top 20 most used words in your poetry with visual bars
-  - **Version history** - Track up to 10 previous versions of each poem with restore capability
-  - **Poem duplication** - Copy button to duplicate poems with "(kopia)" suffix
-  - **Goals and achievements system** - Set daily/weekly/monthly goals with 4 unlockable achievements
-  - **Advanced filters** - Filter poems by date range, content length, and mood
-  - **Tag autocomplete** - Smart suggestions based on existing tags across all poems
-  - **Mood tracking** - 8 default moods (happy, sad, neutral, inspired, melancholic, excited, calm, anxious)
-  - **Encryption for private poems** - AES-GCM-256 encryption with password protection
-  - **Markdown support** - Live preview with split-screen view in editor
-  - **Templates screen** - Dedicated UI for managing poem templates (Sonet, Haiku, Limerick)
+### Version 1.0.3 (Current - December 2025)
 
-- 🎨 **UI/UX Improvements:**
-  - Modal confirmations for delete operations
-  - Hover preview tooltips for poems in library
-  - Keyboard shortcuts (Esc to close modals)
-  - Improved mobile responsive design with better touch interactions
-  - Visual statistics charts with color gradients
-  - Formatting toolbar with visual feedback
+#### 🎨 New Features
+- **7 Theme System** - Added Midnight, Forest, Ocean (light blue), and Rose (light pink) themes
+- **Custom Google Fonts** - Add, select, and remove fonts from Google Fonts library
+- **Swipe Gestures** - Navigate between screens with left/right swipes on mobile
+- **File System API** - Option to save data directly to device storage
+- **Enhanced PWA** - Install prompt, service worker with offline caching
+- **Layout Width Control** - Four width options (narrow, medium, wide, full) with CSS implementation
+- **Improved Animations** - Spinner animation, fadeIn effects, respects reduced-motion preference
 
-- 🔧 **Technical:**
-  - Web Speech API integration for voice recognition
-  - Enhanced storage with template and version management
-  - Improved type safety with extensible MoodType
-  - Better error handling in encryption and speech recognition
-  - React Compiler warnings fixed
-  - Optimized rendering performance
+#### 🐛 Bug Fixes
+- Fixed responsive layout on mobile (reduced minmax values from 140px to 110px)
+- Fixed layout width functionality not applying classes
+- Ocean theme changed from dark to light blue variant
+- Rose theme changed to soft pink (#ffe8f0)
+- Better button contrast in all new themes
 
-### Version 1.0.2
-- ✨ **New Features:**
-  - **4 new themes** - Midnight, Forest, Ocean, Rose (added to Light, Dark, Sepia)
-  - **Title editing** - Edit poem titles directly in the viewer
-  - **Search result highlighting** - Visual highlighting of search terms
-  - **Extended export formats** - PDF, EPUB, Markdown, HTML export capabilities
-  - **Import from JSON** - Restore data from backup files
-  - **Font size options** - Small, Medium, Large, Extra Large
-  - **Layout width customization** - Narrow, Medium, Wide, Full
-  - **Swipe gestures** - Mobile-friendly navigation
-  - **Offline status indicators** - Visual feedback for offline mode
-  - **Private collections** - Mark collections as private
-  - **Social sharing** - Image generation for sharing poems
-  - **Daily writing reminders** - Optional notification system
-  - **PWA enhancements** - Push notifications, Share Target API
-  - **Accessibility improvements** - High contrast mode, Reduced motion option
+#### 🔧 Technical Improvements
+- Service worker for offline support (`/public/service-worker.js`)
+- File System Access API utility (`/src/utils/fileSystem.ts`)
+- TypeScript improvements with proper type definitions
+- CSS keyframes for spin and fadeIn animations
+- Dynamic Google Fonts loading
+- Touch event handlers for swipe gestures
 
-- 🎨 **UI/UX Improvements:**
-  - Improved modal animations
-  - Better mobile responsive design
-  - Enhanced touch interactions
-  - Cleaner settings interface
-  - More intuitive navigation
+#### 📋 Previous Features (v1.0.2)
+- **Speech-to-text dictation** - Voice input with microphone button
+- **Custom poem templates** - Create and manage your own templates
+- **Bulk operations** - Multi-select for batch actions
+- **Custom moods** - Unlimited custom mood options
+- **Text formatting toolbar** - Bold, italic, underline
+- **Word frequency analysis** - Top 20 most used words visualization
+- **Version history** - Track up to 10 versions per poem
+- **Poem duplication** - Copy poems with one click
+- **Goals and achievements** - 4 unlockable achievements
+- **Advanced filters** - Date range, length, mood filtering
+- **Tag autocomplete** - Smart tag suggestions
+- **Encryption** - AES-GCM-256 for private poems
+- **Markdown support** - Live preview split-screen
+- **Extended export** - PDF, EPUB, Markdown, HTML formats
 
-- 🔧 **Technical:**
-  - Performance optimizations (Virtual scrolling prep, IndexedDB migration prep)
-  - Encryption utility for secure content
-  - Markdown parser implementation
-  - Export service for multiple formats
-  - Enhanced type definitions
-  - Better error handling
-  - Improved accessibility features
-
-### Version 1.0.1
-- Added bilingual support (Polish/English)
+### Version 1.0.1 (October 2025)
+- Bilingual support (Polish/English)
 - Auto-detect browser language
-- Fixed TypeScript compilation errors
-- Fixed Fast Refresh issues
-- Added lazy loading for better performance
-- Fixed date formatting for both languages
-- Improved translations coverage
+- TypeScript and Fast Refresh fixes
+- Lazy loading implementation
+- Translation improvements
 
-### Version 1.0.0
-- 🎉 Initial release
+### Version 1.0.0 (September 2025)
+- Initial release
 - Core features: Journal, Library, Collections, Statistics
 - PWA support with offline capabilities
 - Auto-save functionality
-- Three theme system
+- Three-theme system (Light, Dark, Sepia)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**hecreatescode**
+- GitHub: [@hecreatescode](https://github.com/hecreatescode)
+- Project: [PoeSet](https://github.com/hecreatescode/PoeSet)
+
+## 🙏 Acknowledgments
+
+- [React](https://react.dev/) - UI framework
+- [Vite](https://vite.dev/) - Build tool
+- [Lucide](https://lucide.dev/) - Icon library
+- [date-fns](https://date-fns.org/) - Date utilities
+- [Google Fonts](https://fonts.google.com/) - Custom font support
 
 ---
 
-# Original Vite Template Info
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+<div align="center">
+  Made with ❤️ by hecreatescode
+  
+  [Live Demo](https://hecreatescode.github.io/PoeSet/) • [Report Bug](https://github.com/hecreatescode/PoeSet/issues) • [Request Feature](https://github.com/hecreatescode/PoeSet/issues)
+</div>

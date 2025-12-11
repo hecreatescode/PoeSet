@@ -97,6 +97,9 @@ export interface Settings {
   customMoods: string[];
   autoBackup?: boolean;
   autoBackupInterval?: number; // minutes
+  customFonts?: string[]; // Google Fonts names
+  selectedCustomFont?: string;
+  useFileSystem?: boolean; // Enable File System Access API
 }
 
 export type Screen = 'journal' | 'poems' | 'collections' | 'statistics' | 'settings' | 'templates' | 'goals';
