@@ -6,7 +6,7 @@
   A minimalist, offline-first Progressive Web App for writing, organizing, and analyzing your poetry with advanced features and beautiful themes.
   
   [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://hecreatescode.github.io/PoeSet/)
-  [![Version](https://img.shields.io/badge/version-1.0.3-blue)](https://github.com/hecreatescode/PoeSet)
+  [![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/hecreatescode/PoeSet)
   [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 </div>
 
@@ -151,7 +151,7 @@ Set and track writing goals:
 
 ## 📝 Changelog
 
-### Version 1.0.3 (Current - December 2025)
+### Version 2.0.0 (Current - December 2025)
 
 #### 🎨 New Features
 - **7 Theme System** - Added Midnight, Forest, Ocean (light blue), and Rose (light pink) themes
