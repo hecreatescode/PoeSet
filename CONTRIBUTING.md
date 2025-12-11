@@ -82,18 +82,40 @@ Update README with new features
 ```
 PoeSet/
 ├── public/              # Static assets
-│   ├── manifest.json    # PWA manifest
-│   └── service-worker.js # Service worker
+│   ├── manifest.json    # PWA manifest (v2.0.0)
+│   └── service-worker.js # Service worker for offline caching
 ├── src/
 │   ├── components/      # React components
+│   │   ├── JournalScreen/
+│   │   ├── PoemsScreen/
+│   │   ├── CollectionsScreen/
+│   │   ├── StatisticsScreen/
+│   │   ├── SettingsScreen/
+│   │   ├── TemplatesScreen/
+│   │   ├── GoalsScreen/
+│   │   ├── PoemEditor/
+│   │   └── PoemViewer/
 │   ├── i18n/           # Translations (PL/EN)
-│   ├── types/          # TypeScript types
+│   ├── types/          # TypeScript interfaces
 │   ├── utils/          # Utility functions
-│   ├── App.tsx         # Main app component
-│   ├── App.css         # Global styles & themes
+│   │   ├── storage.ts   # localStorage & IndexedDB
+│   │   ├── fileSystem.ts # File System Access API (v2.0.0)
+│   │   └── markdown.ts  # Markdown parser
+│   ├── App.tsx         # Main app component with routing
+│   ├── App.css         # Global styles & 7 themes
+│   ├── index.css       # CSS variables & animations
 │   └── main.tsx        # Entry point
-└── README.md           # Documentation
+└── README.md           # Comprehensive documentation
 ```
+
+## Key Technologies (v2.0.0)
+
+- **React 19.2** - Latest React with automatic batching
+- **TypeScript 5.9** - Strict type checking
+- **Vite 7.2** - Lightning-fast build tool
+- **date-fns** - Date manipulation with Polish locale
+- **lucide-react** - Modern icon library
+- **Web APIs**: Speech Recognition, File System Access, Service Worker, IndexedDB
 
 ## Testing Checklist
 
@@ -103,22 +125,31 @@ Before submitting a PR, ensure:
 - [ ] No TypeScript errors
 - [ ] No ESLint warnings
 - [ ] Feature works in Chrome, Firefox, and Safari
-- [ ] Mobile responsive design is intact
-- [ ] Dark/Light themes work correctly
-- [ ] PWA functionality is not broken
-- [ ] Offline mode works as expected
+- [ ] Mobile responsive design is intact (test swipe gestures)
+- [ ] All 7 themes work correctly (Light/Dark/Sepia/Midnight/Forest/Ocean/Rose)
+- [ ] PWA functionality is not broken (install prompt, offline mode)
+- [ ] Service worker caches correctly
+- [ ] Custom Google Fonts load properly
+- [ ] File System API has proper fallback
+- [ ] Animations respect reduced-motion preference
 
 ## Feature Ideas
 
 Looking for something to work on? Consider these areas:
 
-- **Export improvements**: Additional formats, better styling
+- **v2.1 Features**:
+  - Import poems from other formats (TXT, DOCX, MD)
+  - Cloud sync with optional backend
+  - Collaborative poem editing
+  - AI-powered writing suggestions
+  - Advanced search with regex support
+  - Poem versioning with diff view
+  
 - **Accessibility**: ARIA labels, keyboard navigation enhancements
-- **Mobile UX**: Gesture improvements, haptic feedback
-- **Analytics**: More detailed statistics and visualizations
-- **Collaboration**: Sharing poems with other users
-- **Performance**: Virtual scrolling, code splitting
-- **AI Integration**: Writing suggestions, style analysis
+- **Mobile UX**: More gesture improvements, haptic feedback
+- **Analytics**: Heat maps, writing time analysis, mood correlations
+- **Performance**: Virtual scrolling for large libraries, lazy image loading
+- **Localization**: More languages beyond PL/EN
 
 ## Questions?
 

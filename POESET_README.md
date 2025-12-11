@@ -33,31 +33,31 @@
 - Najbardziej twórcza godzina
 - Średnia długość wiersza
 - Najczęściej używane tagi
-- **NOWE w 1.0.3**: Analiza częstotliwości słów (top 20 najczęściej używanych)
+- **NOWE w 2.0.0**: Analiza częstotliwości słów (top 20 najczęściej używanych)
 
 ### 📝 Edytor wierszy
 - Auto-zapis co 3 sekundy
-- **NOWE w 1.0.3**: Dyktowanie głosowe (speech-to-text)
-- **NOWE v1.0.3**: Pasek formatowania tekstu (pogrubienie, kursywa, podkreślenie)
+- **NOWE w 2.0.0**: Dyktowanie głosowe (speech-to-text)
+- **NOWE v2.0.0**: Pasek formatowania tekstu (pogrubienie, kursywa, podkreślenie)
 - Markdown preview z podglądem na żywo
 - Historia wersji (do 10 ostatnich wersji)
 - Szyfrowanie wierszy hasłem (AES-GCM-256)
 - Śledzenie nastroju
-- **NOWE v1.0.3**: Niestandardowe nastroje (dodaj własne)
+- **NOWE v2.0.0**: Niestandardowe nastroje (dodaj własne)
 - Automatyczne sugestie tagów
 - Duplikacja wierszy
 
 ### 📋 Szablony
-- **NOWE v1.0.3**: Pełny ekran zarządzania szablonami
+- **NOWE v2.0.0**: Pełny ekran zarządzania szablonami
 - Domyślne szablony: Sonet, Haiku, Limerick
-- **NOWE v1.0.3**: Tworzenie własnych szablonów
+- **NOWE v2.0.0**: Tworzenie własnych szablonów
 - Edycja i usuwanie niestandardowych szablonów
 - Przykłady użycia dla każdego szablonu
 
 ### 📦 Operacje grupowe
-- **NOWE v1.0.3**: Tryb zaznaczania wielu wierszy
-- **NOWE v1.0.3**: Usuwanie wielu wierszy naraz
-- **NOWE v1.0.3**: Dodawanie wielu wierszy do kolekcji jednocześnie
+- **NOWE v2.0.0**: Tryb zaznaczania wielu wierszy
+- **NOWE v2.0.0**: Usuwanie wielu wierszy naraz
+- **NOWE v2.0.0**: Dodawanie wielu wierszy do kolekcji jednocześnie
 - Zaznacz wszystkie z filtrem
 
 ### 🎯 Cele i osiągnięcia
@@ -67,11 +67,17 @@
 - Paski postępu z wizualizacją
 
 ### ⚙️ Ustawienia
-- **3 motywy**: Light (papierowy), Dark (atramentowy), Sepia (dziennik)
-- **Typografia**: Wybór między Serif i Sans-serif
+- **7 motywów**: Light, Dark, Sepia, Midnight, Forest, Ocean (jasny niebieski), Rose (różowy)
+- **NOWE v2.0.0**: Custom Google Fonts - dodaj czcionki z Google Fonts
+- **Typografia**: Wybór między Serif i Sans-serif + niestandardowe czcionki
+- **Rozmiary czcionek**: Small, Medium, Large, Extra Large
 - **Odstępy**: Kompaktowe, Normalne, Przestronne
+- **NOWE v2.0.0**: Szerokość layoutu - narrow, medium, wide, full
 - **Widok startowy**: Dziennik lub Biblioteka
-- **Backup**: Eksport/Import wszystkich danych
+- **NOWE v2.0.0**: Gesty swipe - nawigacja między ekranami przesuwaniem
+- **Backup**: Eksport/Import wszystkich danych, auto-backup co 5-120 min
+- **NOWE v2.0.0**: File System API - zapis bezpośrednio na dysku (opcjonalne)
+- **NOWE v2.0.0**: PWA - instalacja jako aplikacja, offline support
 
 ## 🚀 Instalacja i uruchomienie
 
@@ -165,6 +171,18 @@ Głęboki granat/czerń z delikatnymi złamanymi bielami - elegancja nocnego pis
 ### Sepia (Dziennik Poety)
 Ciepła tonacja brązu - nostalgiczny klimat starego dziennika.
 
+### Midnight (Północny)
+Ciemny niebieski - spokój nocnego nieba pełnego gwiazd.
+
+### Forest (Leśny)
+Ciemna zieleń - inspiracja przyrodą i naturą.
+
+### Ocean (Oceaniczny) - **NOWE v2.0.0**
+Jasny niebieski (#e8f4ff) - spokojna, czysta tonacja jak błękitne morze.
+
+### Rose (Różany) - **NOWE v2.0.0**
+Delikatny różowy (#ffe8f0) - miękka, romantyczna tonacja idealna dla poezji uczuć.
+
 ## 📝 Licencja
 
 MIT License - możesz swobodnie używać, modyfikować i dystrybuować.
@@ -173,20 +191,31 @@ MIT License - możesz swobodnie używać, modyfikować i dystrybuować.
 
 Zgłaszaj błędy i propozycje przez GitHub Issues.
 
-## 📋 Wersja 1.0.3 - Co nowego?
+## 📋 Wersja 2.0.0 - Co nowego?
 
 ### Główne funkcje:
-1. **🎤 Dyktowanie głosowe** - Piszesz wiersze głosem dzięki Web Speech API
-2. **📋 Szablony niestandardowe** - Twórz własne szablony wierszy z pełną kontrolą
-3. **☑️ Operacje grupowe** - Zaznaczaj i zarządzaj wieloma wierszami naraz
-4. **😊 Własne nastroje** - Dodaj niestandardowe nastroje oprócz 8 domyślnych
-5. **✍️ Formatowanie tekstu** - Pogrubiaj, kursywuj, podkreślaj tekst w edytorze
-6. **📊 Analiza słów** - Zobacz 20 najczęściej używanych słów w swojej poezji
+1. **🎨 Nowe motywy** - Ocean (jasny niebieski) i Rose (różowy) z lepszym kontrastem
+2. **🔤 Custom Google Fonts** - Dodaj, wybieraj i używaj czcionek z Google Fonts
+3. **👆 Gesty swipe** - Przesuwaj palcem między ekranami na urządzeniach mobilnych
+4. **📁 File System API** - Opcja zapisu danych bezpośrednio na dysku urządzenia
+5. **📱 Ulepszone PWA** - Install prompt, service worker z offline caching
+6. **📏 Kontrola szerokości** - 4 opcje szerokości layoutu (narrow/medium/wide/full)
+7. **✨ Lepsze animacje** - Spinner, fadeIn, z obsługą reduced-motion
+8. **📱 Responsive design** - Poprawione layouty dla małych ekranów mobile
+
+### Poprzednie funkcje (v1.0.3):
+- 🎤 Dyktowanie głosowe z Web Speech API
+- 📋 Tworzenie własnych szablonów wierszy
+- ☑️ Operacje grupowe na wielu wierszach
+- 😊 Niestandardowe nastroje
+- ✍️ Pasek formatowania tekstu
+- 📊 Analiza częstotliwości słów (top 20)
 
 ### Naprawione błędy:
-- Poprawiona obsługa React Compiler
-- Naprawione błędy TypeScript
-- Lepsza obsługa błędów w rozpoznawaniu mowy
+- Lepszy responsive na mobile (minmax 140px→110px)
+- Działająca funkcjonalność szerokości layoutu
+- Ocean i Rose zmienione na jasne warianty
+- Lepszy kontrast przycisków we wszystkich motywach
 - Optymalizacja wydajności
 
 ---
