@@ -13,7 +13,7 @@
 - 📁 **Collections** - Organize poems into colorful collections
 - 📊 **Statistics** - Track your creativity and writing streaks
 - 🌍 **Bilingual** - Polish and English with automatic detection
-- 🎨 **3 themes** - Light, dark, and sepia
+- 🎨 **7 themes** - Light, dark, sepia, Midnight, Forest, Ocean, Rose
 - 💾 **Offline-first** - Everything saved locally
 - 🔄 **Auto-save** - Automatic saving every 3 seconds
 - 📱 **PWA** - Installable on mobile like a native app
