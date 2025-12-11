@@ -317,7 +317,7 @@ const SettingsScreen: React.FC = () => {
             <Type size={20} />
             {t.accessibility.fontSize}
           </h3>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${settings.fontSize === 'small' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('fontSize', 'small')}
@@ -351,7 +351,7 @@ const SettingsScreen: React.FC = () => {
             <Maximize size={20} />
             {t.settings.layoutWidth}
           </h3>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--spacing-sm)' }}>
             <button
               className={`button ${settings.layoutWidth === 'narrow' ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('layoutWidth', 'narrow')}
