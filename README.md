@@ -193,14 +193,14 @@ Set and track writing goals:
 - **Markdown support** - Live preview split-screen
 - **Extended export** - PDF, EPUB, Markdown, HTML formats
 
-### Version 1.0.1 (October 2025)
+### Version 1.0.1 (November 2025)
 - Bilingual support (Polish/English)
 - Auto-detect browser language
 - TypeScript and Fast Refresh fixes
 - Lazy loading implementation
 - Translation improvements
 
-### Version 1.0.0 (September 2025)
+### Version 1.0.0 (November 2025)
 - Initial release
 - Core features: Journal, Library, Collections, Statistics
 - PWA support with offline capabilities
