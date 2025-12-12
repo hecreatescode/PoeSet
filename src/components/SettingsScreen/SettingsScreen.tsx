@@ -8,7 +8,6 @@ import { DEFAULT_MOODS } from '../../types';
 const SettingsScreen: React.FC = () => {
   const [settings, setSettings] = useState<Settings>(getSettings());
   const { language, setLanguage, t } = useLanguage();
-  const [newMood, setNewMood] = useState('');
   const [newFont, setNewFont] = useState('');
 
   const applySettings = React.useCallback((newSettings: Settings) => {
@@ -108,21 +107,6 @@ const SettingsScreen: React.FC = () => {
       }
     };
     input.click();
-  };
-
-  const handleAddCustomMood = () => {
-    const mood = newMood.trim();
-    if (!mood) return;
-    
-    const currentMoods = settings.customMoods || [];
-    if (currentMoods.includes(mood)) {
-      alert('Ten nastrój już istnieje!');
-      return;
-    }
-    
-    const newCustomMoods = [...currentMoods, mood];
-    updateSetting('customMoods', newCustomMoods);
-    setNewMood('');
   };
 
   const handleRemoveCustomMood = (mood: string) => {
@@ -317,7 +301,13 @@ const SettingsScreen: React.FC = () => {
             <Type size={20} />
             {t.accessibility.fontSize}
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="slider-current-value">
+              {settings.fontSize === 'small' ? t.accessibility.small : 
+               settings.fontSize === 'medium' ? t.accessibility.medium : 
+               settings.fontSize === 'large' ? t.accessibility.large : 
+               t.accessibility.xlarge}
+            </div>
             <input
               type="range"
               min="0"
@@ -329,13 +319,13 @@ const SettingsScreen: React.FC = () => {
                 const sizes = ['small', 'medium', 'large', 'xlarge'] as const;
                 updateSetting('fontSize', sizes[value]);
               }}
-              style={{ width: '100%', cursor: 'pointer' }}
+              style={{ width: '100%' }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', opacity: 0.7, marginTop: '-0.5rem' }}>
-              <span>{t.accessibility.small}</span>
-              <span>{t.accessibility.medium}</span>
-              <span>{t.accessibility.large}</span>
-              <span>{t.accessibility.xlarge}</span>
+            <div className="slider-labels">
+              <span>A</span>
+              <span>A</span>
+              <span>A</span>
+              <span>A</span>
             </div>
           </div>
         </div>
@@ -346,7 +336,13 @@ const SettingsScreen: React.FC = () => {
             <Maximize size={20} />
             {t.settings.layoutWidth}
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="slider-current-value">
+              {settings.layoutWidth === 'narrow' ? `${t.settings.narrow} (600px)` : 
+               settings.layoutWidth === 'medium' ? `${t.settings.medium} (900px)` : 
+               settings.layoutWidth === 'wide' ? `${t.settings.wide} (1200px)` : 
+               `${t.settings.full} (100%)`}
+            </div>
             <input
               type="range"
               min="0"
@@ -358,11 +354,11 @@ const SettingsScreen: React.FC = () => {
                 const widths = ['narrow', 'medium', 'wide', 'full'] as const;
                 updateSetting('layoutWidth', widths[value]);
               }}
-              style={{ width: '100%', cursor: 'pointer' }}
+              style={{ width: '100%' }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', opacity: 0.7, marginTop: '-0.5rem' }}>
+            <div className="slider-labels">
               <span>{t.settings.narrow}</span>
-              <span>{t.accessibility.medium}</span>
+              <span>{t.settings.medium}</span>
               <span>{t.settings.wide}</span>
               <span>{t.settings.full}</span>
             </div>
@@ -454,68 +450,125 @@ const SettingsScreen: React.FC = () => {
             {t.settings.backup}
           </h3>
           
-          <div style={{ marginBottom: 'var(--spacing-md)' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer', marginBottom: 'var(--spacing-sm)' }}>
+          {/* Auto backup section */}
+          <div style={{ 
+            background: 'var(--bg-secondary)', 
+            borderRadius: 'var(--radius-md)', 
+            padding: 'var(--spacing-md)', 
+            marginBottom: 'var(--spacing-md)',
+            border: '1px solid var(--border-color)'
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer', marginBottom: settings.autoBackup ? 'var(--spacing-md)' : 0 }}>
               <input
                 type="checkbox"
                 checked={settings.autoBackup || false}
                 onChange={(e) => updateSetting('autoBackup', e.target.checked)}
-                style={{ width: '18px', height: '18px' }}
               />
-              <span>Automatyczne kopie zapasowe</span>
+              <div>
+                <span style={{ fontWeight: 500 }}>{t.settings.autoBackup || 'Automatyczne kopie zapasowe'}</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
+                  {settings.language === 'pl' ? 'Tworzy kopię co określony czas' : 'Creates backup at specified intervals'}
+                </p>
+              </div>
             </label>
             
             {settings.autoBackup && (
-              <div style={{ marginLeft: '26px', marginTop: '0.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.875rem', marginBottom: '0.25rem', color: 'var(--text-secondary)' }}>
-                  Częstotliwość (minuty):
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', marginLeft: '28px' }}>
+                <label style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  {t.settings.backupFrequency || 'Częstotliwość (minuty)'}:
                 </label>
                 <input
-                  type="number"
+                  type="range"
                   min="5"
                   max="120"
+                  step="5"
                   value={settings.autoBackupInterval || 30}
-                  onChange={(e) => updateSetting('autoBackupInterval', parseInt(e.target.value) || 30)}
-                  className="input"
-                  style={{ width: '100px' }}
+                  onChange={(e) => updateSetting('autoBackupInterval', parseInt(e.target.value))}
+                  style={{ flex: 1, maxWidth: '150px' }}
                 />
+                <span style={{ 
+                  minWidth: '50px', 
+                  textAlign: 'center', 
+                  fontWeight: 600, 
+                  color: 'var(--accent-color)',
+                  fontSize: '0.875rem'
+                }}>
+                  {settings.autoBackupInterval || 30} min
+                </span>
               </div>
             )}
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
-            <button className="button button-primary" onClick={() => downloadBackup()}>
-              <Save size={18} />
-              Pobierz kopię
+          {/* Manual backup actions */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: 'var(--spacing-sm)',
+            marginBottom: 'var(--spacing-md)'
+          }}>
+            <button 
+              className="button button-primary" 
+              onClick={() => downloadBackup()}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
+            >
+              <Save size={24} />
+              <span style={{ fontSize: '0.75rem' }}>{t.settings.downloadBackup || 'Pobierz kopię'}</span>
             </button>
-            <button className="button button-secondary" onClick={handleExport}>
-              <Download size={18} />
-              {t.settings.export}
+            <button 
+              className="button button-secondary" 
+              onClick={handleExport}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
+            >
+              <Download size={24} />
+              <span style={{ fontSize: '0.75rem' }}>{t.settings.export}</span>
             </button>
-            <button className="button button-secondary" onClick={handleImport}>
-              <Upload size={18} />
-              {t.settings.import}
+            <button 
+              className="button button-secondary" 
+              onClick={handleImport}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
+            >
+              <Upload size={24} />
+              <span style={{ fontSize: '0.75rem' }}>{t.settings.import}</span>
             </button>
           </div>
 
-          <div style={{ marginTop: 'var(--spacing-md)', paddingTop: 'var(--spacing-md)', borderTop: '1px solid var(--border-color)' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer', marginBottom: 'var(--spacing-sm)' }}>
+          {/* File System API section */}
+          <div style={{ 
+            background: 'var(--bg-secondary)', 
+            borderRadius: 'var(--radius-md)', 
+            padding: 'var(--spacing-md)',
+            border: '1px solid var(--border-color)'
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={settings.useFileSystem || false}
                 onChange={(e) => updateSetting('useFileSystem', e.target.checked)}
-                style={{ width: '18px', height: '18px' }}
               />
-              <span>Zapisuj dane bezpośrednio na urządzeniu</span>
+              <div>
+                <span style={{ fontWeight: 500 }}>{t.settings.saveToDevice || 'Zapisuj dane bezpośrednio na urządzeniu'}</span>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0 0' }}>
+                  📁 {t.settings.fileSystemNote || 'Używa File System Access API (wymaga nowoczesnej przeglądarki)'}
+                </p>
+              </div>
             </label>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginLeft: '26px' }}>
-              📁 Używa File System Access API (wymaga nowoczesnej przeglądarki)
-            </p>
           </div>
           
-          <p style={{ marginTop: 'var(--spacing-sm)', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            💾 {settings.useFileSystem ? 'Dane zapisywane bezpośrednio na dysku' : 'Dane zapisywane w przeglądarce (localStorage + IndexedDB)'}
-          </p>
+          <div style={{ 
+            marginTop: 'var(--spacing-md)', 
+            padding: 'var(--spacing-sm) var(--spacing-md)',
+            background: settings.useFileSystem ? 'rgba(76, 175, 80, 0.1)' : 'rgba(33, 150, 243, 0.1)',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.875rem',
+            color: 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-sm)'
+          }}>
+            💾 {settings.useFileSystem 
+              ? (t.settings.storageDisk || 'Dane zapisywane bezpośrednio na dysku') 
+              : (t.settings.storageLocal || 'Dane zapisywane w przeglądarce (localStorage + IndexedDB)')}
+          </div>
         </div>
 
         {/* Custom Google Fonts */}
@@ -605,38 +658,31 @@ const SettingsScreen: React.FC = () => {
         <div className="card" style={{ cursor: 'default' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <Smile size={20} />
-            Niestandardowe nastroje
+            {t.settings.customMoods || 'Niestandardowe nastroje'}
           </h3>
           
           <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: 'var(--spacing-md)' }}>
-            Domyślne nastroje: {DEFAULT_MOODS.join(', ')}
+            {t.settings.defaultMoodsNote || 'Domyślne nastroje'}: {DEFAULT_MOODS.map(m => t.mood[m]).join(', ')}
           </p>
 
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--spacing-md)' }}>
-            <input
-              type="text"
-              className="input"
-              value={newMood}
-              onChange={(e) => setNewMood(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAddCustomMood()}
-              placeholder="Dodaj własny nastrój..."
-              style={{ flex: 1 }}
-            />
-            <button 
-              className="button button-primary"
-              onClick={handleAddCustomMood}
-              disabled={!newMood.trim()}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <Plus size={18} />
-              Dodaj
-            </button>
+          <div style={{ 
+            background: 'var(--bg-secondary)', 
+            borderRadius: 'var(--radius-md)', 
+            padding: 'var(--spacing-md)',
+            marginBottom: 'var(--spacing-md)',
+            border: '1px solid var(--border-color)'
+          }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: 'var(--spacing-sm)' }}>
+              💡 {settings.language === 'pl' 
+                ? 'Możesz dodawać niestandardowe nastroje bezpośrednio podczas edycji wiersza, klikając ikonę nastroju.' 
+                : 'You can add custom moods directly while editing a poem by clicking the mood icon.'}
+            </p>
           </div>
 
           {(settings.customMoods || []).length > 0 && (
             <div>
               <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-                Twoje nastroje:
+                {t.settings.yourMoods || 'Twoje nastroje'}:
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                 {(settings.customMoods || []).map(mood => (
@@ -665,7 +711,7 @@ const SettingsScreen: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                       }}
-                      title="Usuń"
+                      title={settings.language === 'pl' ? 'Usuń' : 'Remove'}
                     >
                       <X size={16} />
                     </button>
@@ -673,6 +719,14 @@ const SettingsScreen: React.FC = () => {
                 ))}
               </div>
             </div>
+          )}
+          
+          {(settings.customMoods || []).length === 0 && (
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+              {settings.language === 'pl' 
+                ? 'Nie masz jeszcze żadnych niestandardowych nastrojów.' 
+                : 'You don\'t have any custom moods yet.'}
+            </p>
           )}
         </div>
 

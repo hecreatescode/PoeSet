@@ -2,7 +2,7 @@
 
 **PoeSet** to elegancka, minimalistyczna aplikacja webowa do pisania, organizowania i analizowania poezji. Inspirowana estetyką vintage i duchem Edgara Allana Poe.
 
-![PoeSet](https://img.shields.io/badge/version-2.0.0-blue)
+![PoeSet](https://img.shields.io/badge/version-2.0.1-blue)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
 
@@ -191,9 +191,21 @@ MIT License - możesz swobodnie używać, modyfikować i dystrybuować.
 
 Zgłaszaj błędy i propozycje przez GitHub Issues.
 
-## 📋 Wersja 2.0.0 - Co nowego?
+## 📋 Wersja 2.0.1 - Co nowego?
 
-### Główne funkcje:
+### Nowe w 2.0.1:
+- **🎨 Motywy dla wierszy** - Przypisz indywidualny motyw do każdego wiersza
+- **📷 Udostępnianie PNG** - Eksportuj wiersze jako obrazy do social media
+- **🖼️ Logo w nagłówku** - Logo z automatycznym dopasowaniem kolorów do motywu
+- **😊 Nastroje w edytorze** - Dodawaj własne nastroje podczas edycji wiersza
+- **♿ Poprawiony wysoki kontrast** - Mocniejszy kontrast czarno-biały dla każdego motywu
+- **🎨 Kolorowe pola formularzy** - Checkboxy i suwaki w kolorze motywu
+- **📏 Ulepszone suwaki** - Szerokość układu i rozmiar czcionki z wyświetlaniem wartości
+- **💾 Nowy wygląd backupu** - Przeprojektowana sekcja ustawień kopii zapasowej
+- **👆 Poprawione gesty** - Nawigacja swipe ignoruje elementy interaktywne
+- **🌍 Brakujące tłumaczenia** - Uzupełnione tłumaczenia PL/EN
+
+### Główne funkcje v2.0.0:
 1. **🎨 Nowe motywy** - Ocean (jasny niebieski) i Rose (różowy) z lepszym kontrastem
 2. **🔤 Custom Google Fonts** - Dodaj, wybieraj i używaj czcionek z Google Fonts
 3. **👆 Gesty swipe** - Przesuwaj palcem między ekranami na urządzeniach mobilnych

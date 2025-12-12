@@ -24,6 +24,7 @@ export interface Poem {
   isEncrypted?: boolean;
   isMarkdown?: boolean;
   template?: string;
+  theme?: Theme; // Individual poem theme
 }
 
 export interface Collection {

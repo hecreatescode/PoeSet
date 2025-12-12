@@ -82,7 +82,8 @@ Update README with new features
 ```
 PoeSet/
 ├── public/              # Static assets
-│   ├── manifest.json    # PWA manifest (v2.0.0)
+│   ├── manifest.json    # PWA manifest (v2.0.1)
+│   ├── logo.svg         # Theme-aware app logo (v2.0.1)
 │   └── service-worker.js # Service worker for offline caching
 ├── src/
 │   ├── components/      # React components
@@ -108,7 +109,7 @@ PoeSet/
 └── README.md           # Comprehensive documentation
 ```
 
-## Key Technologies (v2.0.0)
+## Key Technologies (v2.0.1)
 
 - **React 19.2** - Latest React with automatic batching
 - **TypeScript 5.9** - Strict type checking
@@ -137,7 +138,15 @@ Before submitting a PR, ensure:
 
 Looking for something to work on? Consider these areas:
 
-- **v2.1 Features**:
+- **v2.0.1 Completed**:
+  - Individual poem themes
+  - PNG sharing for social media
+  - Theme-aware header logo
+  - Custom moods in poem editor
+  - Enhanced high contrast mode
+  - Improved swipe navigation
+
+- **v2.2 Features**:
   - Import poems from other formats (TXT, DOCX, MD)
   - Cloud sync with optional backend
   - Collaborative poem editing

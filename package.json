@@ -1,7 +1,7 @@
 {
   "name": "poeset",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "description": "A minimalist, offline-first Progressive Web App for writing, organizing, and analyzing poetry",
   "author": "hecreatescode",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
