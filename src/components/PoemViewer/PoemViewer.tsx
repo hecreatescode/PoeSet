@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { X, Edit, Trash2, Share2, History, Copy } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Edit, Trash2, Share2, History, Copy, Image, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import type { Poem } from '../../types';
+import type { Poem, Theme } from '../../types';
 import { deletePoem, savePoem, getSettings } from '../../utils/storage';
 import PoemEditor from '../PoemEditor/PoemEditor';
 import Modal from '../Modal/Modal';
@@ -20,8 +20,173 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
   const [showUI, setShowUI] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const poemContentRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   const settings = getSettings();
+
+  // Get theme colors for image generation
+  const getThemeColors = (theme: Theme) => {
+    const themes: Record<Theme, { bg: string; text: string; accent: string; secondary: string }> = {
+      light: { bg: '#f9f7f4', text: '#1a1a1a', accent: '#2c2c2c', secondary: '#666666' },
+      dark: { bg: '#0f1419', text: '#f0ede6', accent: '#d4af37', secondary: '#a8a29e' },
+      sepia: { bg: '#f4ecd8', text: '#3e2723', accent: '#8d6e63', secondary: '#6d4c41' },
+      midnight: { bg: '#0a0e1a', text: '#e0e6f0', accent: '#7aa2f7', secondary: '#8b95a8' },
+      forest: { bg: '#1a2f1a', text: '#e8f5e8', accent: '#90ee90', secondary: '#a8c5a8' },
+      ocean: { bg: '#e8f4ff', text: '#1a3a5a', accent: '#2196f3', secondary: '#5a7a9a' },
+      rose: { bg: '#ffe8f0', text: '#4a1f2e', accent: '#c44569', secondary: '#8a5060' },
+    };
+    return themes[theme] || themes.light;
+  };
+
+  // Generate poem as image
+  const generatePoemImage = async () => {
+    setIsGeneratingImage(true);
+    
+    const theme = poem.theme || settings.theme;
+    const colors = getThemeColors(theme);
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      setIsGeneratingImage(false);
+      return;
+    }
+
+    // Calculate canvas size based on content
+    const padding = 80;
+    const maxWidth = 800;
+    const lineHeight = 32;
+    const titleHeight = poem.title ? 60 : 0;
+    const dateHeight = 40;
+    
+    // Word wrap function
+    const wrapText = (text: string, maxW: number): string[] => {
+      const words = text.split(' ');
+      const lines: string[] = [];
+      let currentLine = '';
+      
+      ctx.font = '18px Georgia, serif';
+      
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxW && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      return lines;
+    };
+
+    // Process content lines
+    ctx.font = '18px Georgia, serif';
+    const contentLines: string[] = [];
+    const rawLines = poem.content.split('\n');
+    for (const line of rawLines) {
+      if (line.trim() === '') {
+        contentLines.push('');
+      } else {
+        const wrapped = wrapText(line, maxWidth - padding * 2);
+        contentLines.push(...wrapped);
+      }
+    }
+
+    const contentHeight = contentLines.length * lineHeight;
+    const totalHeight = padding * 2 + titleHeight + contentHeight + dateHeight + 40;
+
+    canvas.width = maxWidth;
+    canvas.height = totalHeight;
+
+    // Draw background
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw decorative border
+    ctx.strokeStyle = colors.accent;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    let yPos = padding;
+
+    // Draw title
+    if (poem.title) {
+      ctx.fillStyle = colors.text;
+      ctx.font = 'bold 28px Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(poem.title, canvas.width / 2, yPos + 30);
+      yPos += titleHeight;
+    }
+
+    // Draw content
+    ctx.fillStyle = colors.text;
+    ctx.font = '18px Georgia, serif';
+    ctx.textAlign = 'center';
+    
+    for (const line of contentLines) {
+      ctx.fillText(line, canvas.width / 2, yPos + lineHeight);
+      yPos += lineHeight;
+    }
+
+    // Draw date
+    yPos += 20;
+    ctx.fillStyle = colors.secondary;
+    ctx.font = '14px Georgia, serif';
+    ctx.fillText(format(new Date(poem.date), 'd MMMM yyyy', { locale: pl }), canvas.width / 2, yPos);
+
+    // Draw watermark
+    ctx.fillStyle = colors.accent;
+    ctx.font = '12px Georgia, serif';
+    ctx.fillText('PoeSet', canvas.width / 2, canvas.height - 30);
+
+    // Convert to blob and download/share
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        setIsGeneratingImage(false);
+        return;
+      }
+
+      const file = new File([blob], `${poem.title || 'wiersz'}.png`, { type: 'image/png' });
+
+      // Try to share using Web Share API
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: poem.title || 'Wiersz',
+            text: 'Mój wiersz z PoeSet',
+          });
+        } catch (err) {
+          // User cancelled or error - fall back to download
+          downloadImage(blob);
+        }
+      } else {
+        // Fall back to download
+        downloadImage(blob);
+      }
+      
+      setIsGeneratingImage(false);
+      setShowShareModal(false);
+    }, 'image/png');
+  };
+
+  const downloadImage = (blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${poem.title || 'wiersz'}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleDelete = () => {
     setShowDeleteModal(true);
@@ -79,6 +244,10 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
     );
   }
 
+  // Get viewer theme based on poem or app settings
+  const viewerTheme = poem.theme || settings.theme;
+  const themeColors = getThemeColors(viewerTheme);
+
   return (
     <div 
       style={{
@@ -87,7 +256,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'var(--light-bg)',
+        background: poem.theme ? themeColors.bg : 'var(--bg-primary)',
+        color: poem.theme ? themeColors.text : 'var(--text-primary)',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
@@ -98,11 +268,11 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
       {showUI && (
         <div style={{
           padding: 'var(--spacing-md)',
-          borderBottom: '1px solid var(--light-border)',
+          borderBottom: `1px solid ${poem.theme ? themeColors.accent + '40' : 'var(--border-color)'}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'var(--light-bg)',
+          background: poem.theme ? themeColors.bg : 'var(--bg-primary)',
         }}>
           <button 
             className="button button-secondary"
@@ -125,8 +295,9 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
             )}
             <button 
               className="button button-secondary"
-              onClick={(e) => { e.stopPropagation(); handleShare(); }}
+              onClick={(e) => { e.stopPropagation(); setShowShareModal(true); }}
               style={{ padding: '0.5rem' }}
+              title={t.share?.title || 'Udostępnij'}
             >
               <Share2 size={20} />
             </button>
@@ -385,6 +556,43 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
         }
       >
         <p>{t.editor.deleteConfirm || 'Czy na pewno chcesz usunąć ten wiersz? Ta operacja jest nieodwracalna.'}</p>
+      </Modal>
+
+      {/* Share Modal */}
+      <Modal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        title={t.share?.title || 'Udostępnij'}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+            {t.share?.subtitle || 'Wybierz sposób udostępniania wiersza'}
+          </p>
+          
+          <button
+            className="button button-primary"
+            onClick={() => generatePoemImage()}
+            disabled={isGeneratingImage}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          >
+            <Image size={20} />
+            {isGeneratingImage 
+              ? (t.common?.loading || 'Generowanie...') 
+              : (t.share?.generateImage || 'Pobierz jako obraz PNG')}
+          </button>
+          
+          <button
+            className="button button-secondary"
+            onClick={() => {
+              handleShare();
+              setShowShareModal(false);
+            }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          >
+            <Share2 size={20} />
+            {t.share?.copyLink || 'Kopiuj tekst wiersza'}
+          </button>
+        </div>
       </Modal>
     </div>
   );

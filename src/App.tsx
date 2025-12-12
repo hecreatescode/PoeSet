@@ -21,11 +21,14 @@ function App() {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
   // Swipe gesture state
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
+  const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
+  const [isSwiping, setIsSwiping] = useState(false);
 
   // Minimum distance to trigger swipe (in pixels)
-  const minSwipeDistance = 50;
+  const minSwipeDistance = 80;
+  // Maximum vertical distance to still count as horizontal swipe
+  const maxVerticalDistance = 100;
 
   // Screen order for navigation
   const screens: Screen[] = ['journal', 'poems', 'collections', 'statistics', 'settings'];
@@ -94,21 +97,67 @@ function App() {
     const settings = getSettings();
     if (!settings.enableSwipeGestures) return;
 
+    const isInteractiveElement = (target: EventTarget | null): boolean => {
+      if (!target || !(target instanceof Element)) return false;
+      
+      const tagName = target.tagName.toLowerCase();
+      const interactiveTags = ['input', 'textarea', 'select', 'button', 'a'];
+      
+      if (interactiveTags.includes(tagName)) return true;
+      
+      // Check if inside a modal, editor, or other interactive component
+      const closestInteractive = target.closest(
+        '.modal, [role="dialog"], [contenteditable], .poem-editor, .collection-editor'
+      );
+      
+      return closestInteractive !== null;
+    };
+
     const onTouchStart = (e: TouchEvent) => {
+      // Don't start swipe on interactive elements
+      if (isInteractiveElement(e.target)) {
+        setIsSwiping(false);
+        return;
+      }
+      
       setTouchEnd(null);
-      setTouchStart(e.targetTouches[0].clientX);
+      setTouchStart({
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY
+      });
+      setIsSwiping(true);
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      setTouchEnd(e.targetTouches[0].clientX);
+      if (!isSwiping || !touchStart) return;
+      
+      setTouchEnd({
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY
+      });
     };
 
     const onTouchEnd = () => {
-      if (!touchStart || !touchEnd) return;
+      if (!isSwiping || !touchStart || !touchEnd) {
+        setTouchStart(null);
+        setTouchEnd(null);
+        setIsSwiping(false);
+        return;
+      }
       
-      const distance = touchStart - touchEnd;
-      const isLeftSwipe = distance > minSwipeDistance;
-      const isRightSwipe = distance < -minSwipeDistance;
+      const distanceX = touchStart.x - touchEnd.x;
+      const distanceY = Math.abs(touchStart.y - touchEnd.y);
+      
+      // Only trigger horizontal swipe if vertical movement is minimal
+      if (distanceY > maxVerticalDistance) {
+        setTouchStart(null);
+        setTouchEnd(null);
+        setIsSwiping(false);
+        return;
+      }
+      
+      const isLeftSwipe = distanceX > minSwipeDistance;
+      const isRightSwipe = distanceX < -minSwipeDistance;
       
       if (isLeftSwipe || isRightSwipe) {
         const currentIndex = screens.indexOf(currentScreen);
@@ -124,10 +173,11 @@ function App() {
       
       setTouchStart(null);
       setTouchEnd(null);
+      setIsSwiping(false);
     };
 
-    document.addEventListener('touchstart', onTouchStart);
-    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
     document.addEventListener('touchend', onTouchEnd);
 
     return () => {
@@ -135,7 +185,7 @@ function App() {
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
-  }, [currentScreen, touchStart, touchEnd]);
+  }, [currentScreen, touchStart, touchEnd, isSwiping]);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -187,16 +237,28 @@ function App() {
         borderBottom: '1px solid var(--border-color)',
         zIndex: 999,
       }}>
-        <h1 style={{
-          fontFamily: "'Jomhuria', serif",
-          fontSize: '3rem',
-          fontWeight: 400,
-          margin: 0,
-          letterSpacing: '2px',
-          color: 'var(--text-primary)',
-        }}>
-          PoeSet
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img 
+            src="/logo.svg" 
+            alt="PoeSet Logo" 
+            style={{ 
+              width: '32px', 
+              height: '32px',
+              filter: 'var(--logo-filter, none)'
+            }}
+            className="app-logo"
+          />
+          <h1 style={{
+            fontFamily: "'Jomhuria', serif",
+            fontSize: '3rem',
+            fontWeight: 400,
+            margin: 0,
+            letterSpacing: '2px',
+            color: 'var(--text-primary)',
+          }}>
+            PoeSet
+          </h1>
+        </div>
       </header>
       <main className="main-content" style={{ paddingTop: '60px' }}>
         <Suspense fallback={<LoadingSpinner />}>

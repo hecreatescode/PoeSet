@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { X, Save, Tag, Calendar, Eye, EyeOff, Smile, Lock, Mic, MicOff, Bold, Italic, Underline } from 'lucide-react';
-import type { Poem, MoodType } from '../../types';
+import { X, Save, Tag, Calendar, Eye, EyeOff, Smile, Lock, Mic, MicOff, Bold, Italic, Underline, Plus, Palette } from 'lucide-react';
+import type { Poem, MoodType, Theme } from '../../types';
 import { DEFAULT_MOODS } from '../../types';
-import { savePoem, getSettings, getPoems } from '../../utils/storage';
+import { savePoem, getSettings, getPoems, saveSettings } from '../../utils/storage';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { useLanguage } from '../../i18n/useLanguage';
 import { MarkdownParser } from '../../utils/markdown';
@@ -62,9 +62,13 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const [tagInput, setTagInput] = useState('');
   const [date, setDate] = useState(poem?.date.split('T')[0] || initialDate || new Date().toISOString().split('T')[0]);
   const [mood, setMood] = useState<MoodType | undefined>(poem?.mood);
+  const [poemTheme, setPoemTheme] = useState<Theme | undefined>(poem?.theme);
   const [showTagInput, setShowTagInput] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
+  const [showAddMoodInput, setShowAddMoodInput] = useState(false);
+  const [newMoodInput, setNewMoodInput] = useState('');
   const [autoSaved, setAutoSaved] = useState(false);
   const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
   const [isEncrypted, setIsEncrypted] = useState(poem?.isEncrypted || false);
@@ -74,12 +78,31 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const autoSaveTimerRef = useRef<number | null>(null);
   const poemIdRef = useRef<string>(poem?.id || '');
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const settings = getSettings();
+  const [settings, setSettingsState] = useState(getSettings());
   const { t } = useLanguage();
   const recognitionSupported = useMemo(() => 
     'webkitSpeechRecognition' in window || 'SpeechRecognition' in window,
     []
   );
+
+  // Funkcja dodawania niestandardowego nastroju
+  const handleAddCustomMood = () => {
+    const mood = newMoodInput.trim();
+    if (!mood) return;
+    
+    const currentMoods = settings.customMoods || [];
+    if (currentMoods.includes(mood) || DEFAULT_MOODS.includes(mood as typeof DEFAULT_MOODS[number])) {
+      return;
+    }
+    
+    const newCustomMoods = [...currentMoods, mood];
+    const newSettings = { ...settings, customMoods: newCustomMoods };
+    saveSettings(newSettings);
+    setSettingsState(newSettings);
+    setMood(mood);
+    setNewMoodInput('');
+    setShowAddMoodInput(false);
+  };
 
   // Tag suggestions
   const tagSuggestions = useMemo(() => {
@@ -181,6 +204,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
         date: `${date}T${new Date().toISOString().split('T')[1]}`,
         tags,
         mood,
+        theme: poemTheme,
         collectionIds: poem?.collectionIds || [],
         createdAt: poem?.createdAt || now,
         updatedAt: now,
@@ -195,7 +219,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [title, content, tags, mood, date, poem]);
+  }, [title, content, tags, mood, poemTheme, date, poem]);
 
   const handleSave = useCallback(() => {
     if (!content.trim()) return;
@@ -207,6 +231,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       date: `${date}T${new Date().toISOString().split('T')[1]}`,
       tags,
       mood,
+      theme: poemTheme,
       collectionIds: poem?.collectionIds || [],
       createdAt: poem?.createdAt || now,
       updatedAt: now,
@@ -214,7 +239,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
 
     savePoem(poemData);
     onSave(poemData);
-  }, [content, title, date, tags, mood, poem, onSave]);
+  }, [content, title, date, tags, mood, poemTheme, poem, onSave]);
 
   const handleAddTag = (tagToAdd?: string) => {
     const tag = (tagToAdd || tagInput).trim();
@@ -378,12 +403,20 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
             <Lock size={20} />
           </button>
           <button 
-            className="button button-secondary"
+            className={`button ${showMoodPicker ? 'button-primary' : 'button-secondary'}`}
             onClick={() => setShowMoodPicker(!showMoodPicker)}
             style={{ padding: '0.5rem' }}
             title="Nastrój wiersza"
           >
             <Smile size={20} />
+          </button>
+          <button 
+            className={`button ${showThemePicker ? 'button-primary' : 'button-secondary'}`}
+            onClick={() => setShowThemePicker(!showThemePicker)}
+            style={{ padding: '0.5rem' }}
+            title="Motyw wiersza"
+          >
+            <Palette size={20} />
           </button>
           <button 
             className="button button-secondary"
@@ -529,7 +562,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
                 {t.mood[moodType]}
               </button>
             ))}
-            {settings.customMoods.map(customMood => (
+            {(settings.customMoods || []).map(customMood => (
               <button
                 key={customMood}
                 className={`button ${mood === customMood ? 'button-primary' : 'button-secondary'}`}
@@ -539,6 +572,127 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
                 {customMood}
               </button>
             ))}
+          </div>
+          
+          {/* Add custom mood section */}
+          <div style={{ marginTop: 'var(--spacing-md)', borderTop: '1px solid var(--light-border)', paddingTop: 'var(--spacing-md)' }}>
+            {!showAddMoodInput ? (
+              <button
+                className="button button-secondary"
+                onClick={() => setShowAddMoodInput(true)}
+                style={{ fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <Plus size={16} />
+                {t.editor?.addCustomMood || 'Dodaj własny nastrój'}
+              </button>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  className="input"
+                  value={newMoodInput}
+                  onChange={(e) => setNewMoodInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddCustomMood()}
+                  placeholder={t.editor?.moodPlaceholder || 'Nazwa nastroju...'}
+                  style={{ flex: 1, padding: '0.5rem' }}
+                  autoFocus
+                />
+                <button
+                  className="button button-primary"
+                  onClick={handleAddCustomMood}
+                  disabled={!newMoodInput.trim()}
+                  style={{ padding: '0.5rem' }}
+                >
+                  <Plus size={18} />
+                </button>
+                <button
+                  className="button button-secondary"
+                  onClick={() => { setShowAddMoodInput(false); setNewMoodInput(''); }}
+                  style={{ padding: '0.5rem' }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Theme Picker */}
+      {showThemePicker && (
+        <div style={{
+          padding: 'var(--spacing-md)',
+          borderBottom: '1px solid var(--light-border)',
+        }}>
+          <label style={{ 
+            display: 'block', 
+            fontSize: '0.875rem', 
+            marginBottom: '0.5rem',
+            opacity: 0.7
+          }}>
+            {t.editor?.poemTheme || 'Motyw wiersza'}
+          </label>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+            gap: '0.5rem' 
+          }}>
+            <button
+              className={`button ${!poemTheme ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme(undefined)}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.editor?.defaultTheme || 'Domyślny'}
+            </button>
+            <button
+              className={`button ${poemTheme === 'light' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('light')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.light}
+            </button>
+            <button
+              className={`button ${poemTheme === 'dark' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('dark')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.dark}
+            </button>
+            <button
+              className={`button ${poemTheme === 'sepia' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('sepia')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.sepia}
+            </button>
+            <button
+              className={`button ${poemTheme === 'midnight' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('midnight')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.midnight}
+            </button>
+            <button
+              className={`button ${poemTheme === 'forest' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('forest')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.forest}
+            </button>
+            <button
+              className={`button ${poemTheme === 'ocean' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('ocean')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.ocean}
+            </button>
+            <button
+              className={`button ${poemTheme === 'rose' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setPoemTheme('rose')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              {t.themes.rose}
+            </button>
           </div>
         </div>
       )}
