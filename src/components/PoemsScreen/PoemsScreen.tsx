@@ -45,6 +45,26 @@ const PoemsScreen: React.FC = () => {
       callback: () => selectedPoem && setSelectedPoem(null),
       description: 'Close (Esc)',
     },
+    {
+      key: 'ArrowLeft',
+      callback: () => {
+        if (selectedPoem) {
+          const idx = filteredPoems.findIndex(p => p.id === selectedPoem.id);
+          if (idx > 0) setSelectedPoem(filteredPoems[idx - 1]);
+        }
+      },
+      description: 'Poprzedni wiersz (←)'
+    },
+    {
+      key: 'ArrowRight',
+      callback: () => {
+        if (selectedPoem) {
+          const idx = filteredPoems.findIndex(p => p.id === selectedPoem.id);
+          if (idx < filteredPoems.length - 1) setSelectedPoem(filteredPoems[idx + 1]);
+        }
+      },
+      description: 'Następny wiersz (→)'
+    },
   ]);
 
   const filteredPoems = useMemo(() => {

@@ -44,81 +44,47 @@ const SettingsScreen: React.FC = () => {
     
     // Load custom fonts
     const customFonts = settings.customFonts || [];
-    customFonts.forEach(font => {
-      const link = document.createElement('link');
-      link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
-      link.rel = 'stylesheet';
-      if (!document.querySelector(`link[href="${link.href}"]`)) {
-        document.head.appendChild(link);
-      }
-    });
-    
-    // Apply selected custom font
-    if (settings.selectedCustomFont) {
-      document.body.style.fontFamily = `"${settings.selectedCustomFont}", ${settings.fontFamily}`;
-    }
-    
-    // Handle auto-backup
-    if (settings.autoBackup) {
-      startAutoBackup(settings.autoBackupInterval || 30);
-    } else {
-      stopAutoBackup();
-    }
-    
-    return () => {
-      stopAutoBackup();
-    };
-  }, [settings, applySettings]);
-
-  const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
-    const newSettings = { ...settings, [key]: value };
-    setSettings(newSettings);
-    saveSettings(newSettings);
-  };
-
-  const handleExport = () => {
-    const data = exportAllData();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `poeset-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-  };
-
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const data = e.target?.result as string;
-          if (importAllData(data)) {
-            alert('Dane zostały zaimportowane!');
-            window.location.reload();
-          } else {
-            alert('Błąd importu danych.');
-          }
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
-  };
-
-  const handleRemoveCustomMood = (mood: string) => {
-    const currentMoods = settings.customMoods || [];
-    const newCustomMoods = currentMoods.filter(m => m !== mood);
-    updateSetting('customMoods', newCustomMoods);
-  };
-
-  const handleAddCustomFont = () => {
-    const font = newFont.trim();
-    if (!font) return;
-    
+        {/* Font Size & Layout Width */}
+        <div className="card" style={{ cursor: 'default', marginBottom: 'var(--spacing-lg)' }}>
+          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <Type size={20} />
+            {t.settings.fontSize || 'Rozmiar czcionki'}
+          </h3>
+          <input
+            type="range"
+            min={0}
+            max={3}
+            value={['small','medium','large','xlarge'].indexOf(settings.fontSize)}
+            onChange={e => {
+              const idx = parseInt(e.target.value, 10);
+              updateSetting('fontSize', ['small','medium','large','xlarge'][idx]);
+            }}
+            style={{ width: '100%' }}
+          />
+          <div style={{ marginTop: '0.5rem', textAlign: 'center', fontSize: '1.2em' }}>
+            {t.settings[settings.fontSize] || settings.fontSize}
+          </div>
+        </div>
+        <div className="card" style={{ cursor: 'default', marginBottom: 'var(--spacing-lg)' }}>
+          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <Layout size={20} />
+            {t.settings.layoutWidth || 'Szerokość układu'}
+          </h3>
+          <input
+            type="range"
+            min={0}
+            max={3}
+            value={['narrow','medium','wide','full'].indexOf(settings.layoutWidth)}
+            onChange={e => {
+              const idx = parseInt(e.target.value, 10);
+              updateSetting('layoutWidth', ['narrow','medium','wide','full'][idx]);
+            }}
+            style={{ width: '100%' }}
+          />
+          <div style={{ marginTop: '0.5rem', textAlign: 'center', fontSize: '1.2em' }}>
+            {t.settings[settings.layoutWidth] || settings.layoutWidth}
+          </div>
+        </div>
     const currentFonts = settings.customFonts || [];
     if (currentFonts.includes(font)) {
       alert('Ta czcionka jest już dodana!');
@@ -167,6 +133,50 @@ const SettingsScreen: React.FC = () => {
       </header>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+        {/* Custom Fonts */}
+        <div className="card" style={{ cursor: 'default', marginBottom: 'var(--spacing-lg)' }}>
+          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <Type size={20} />
+            {t.settings.customFonts || 'Niestandardowe czcionki (Google Fonts)'}
+          </h3>
+          <form onSubmit={e => { e.preventDefault(); if (newFont.trim()) { handleAddCustomFont(newFont.trim()); } }} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <input
+              type="text"
+              placeholder={t.settings.addFontPlaceholder || 'Nazwa czcionki z Google Fonts'}
+              value={newFont}
+              onChange={e => setNewFont(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <button type="submit" className="button button-primary">
+              {t.settings.addFont || 'Dodaj'}
+            </button>
+          </form>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {(settings.customFonts || []).length === 0 && (
+              <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{t.settings.noCustomFonts || 'Brak dodanych czcionek.'}</span>
+            )}
+            {(settings.customFonts || []).map(font => (
+              <div key={font} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: `'${font}', ${settings.fontFamily}` }}>
+                <input
+                  type="radio"
+                  checked={settings.selectedCustomFont === font}
+                  onChange={() => handleSelectCustomFont(font)}
+                  name="customFontSelect"
+                  style={{ accentColor: 'var(--accent-color)' }}
+                />
+                <span>{font}</span>
+                <button onClick={() => handleRemoveCustomFont(font)} style={{ background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', marginLeft: 'auto' }} title={t.settings.removeFont || 'Usuń czcionkę'}>
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+            {settings.selectedCustomFont && (
+              <button onClick={() => handleSelectCustomFont(undefined)} className="button button-secondary" style={{ marginTop: '0.5rem', alignSelf: 'flex-start' }}>
+                {t.settings.resetFont || 'Przywróć domyślną czcionkę'}
+              </button>
+            )}
+          </div>
+        </div>
         {/* Theme */}
         <div className="card" style={{ cursor: 'default' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
@@ -321,11 +331,11 @@ const SettingsScreen: React.FC = () => {
               }}
               style={{ width: '100%' }}
             />
-            <div className="slider-labels">
-              <span>A</span>
-              <span>A</span>
-              <span>A</span>
-              <span>A</span>
+            <div className="slider-labels" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+              <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>A</span>
+              <span style={{ fontSize: '1.1rem', opacity: 0.8 }}>A</span>
+              <span style={{ fontSize: '1.35rem', opacity: 0.9 }}>A</span>
+              <span style={{ fontSize: '1.6rem', fontWeight: 600 }}>A</span>
             </div>
           </div>
         </div>
@@ -356,11 +366,11 @@ const SettingsScreen: React.FC = () => {
               }}
               style={{ width: '100%' }}
             />
-            <div className="slider-labels">
-              <span>{t.settings.narrow}</span>
-              <span>{t.settings.medium}</span>
-              <span>{t.settings.wide}</span>
-              <span>{t.settings.full}</span>
+            <div className="slider-labels" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+              <span style={{ width: 40, textAlign: 'center', fontSize: '0.9rem', opacity: 0.7 }}>{t.settings.narrow}</span>
+              <span style={{ width: 60, textAlign: 'center', fontSize: '1.1rem', opacity: 0.8 }}>{t.settings.medium}</span>
+              <span style={{ width: 80, textAlign: 'center', fontSize: '1.25rem', opacity: 0.9 }}>{t.settings.wide}</span>
+              <span style={{ width: 100, textAlign: 'center', fontSize: '1.35rem', fontWeight: 600 }}>{t.settings.full}</span>
             </div>
           </div>
         </div>
@@ -739,7 +749,7 @@ const SettingsScreen: React.FC = () => {
             <strong>PoeSet</strong> - {t.settings.aboutDescription}
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            {t.settings.version} 1.0.3
+            {t.settings.version} 2.0.1
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem', marginTop: 'var(--spacing-md)' }}>
             {t.settings.aboutText}

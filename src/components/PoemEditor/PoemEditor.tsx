@@ -336,18 +336,29 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'var(--light-bg)',
+      background: 'var(--bg-primary)',
       zIndex: 1000,
       display: 'flex',
       flexDirection: 'column',
+      border: '2px solid var(--accent-color)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+      borderRadius: '1.5rem',
+      margin: '2vw',
+      overflow: 'hidden',
+      maxWidth: '700px',
+      maxHeight: '95vh',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
     }}>
       {/* Header */}
       <div style={{
         padding: 'var(--spacing-md)',
-        borderBottom: '1px solid var(--light-border)',
+        borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        background: 'var(--bg-secondary)',
       }}>
         <button 
           className="button button-secondary"

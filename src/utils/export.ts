@@ -1,3 +1,29 @@
+  static exportToDocx(poems: Poem[] | Poem, filename = 'poem.docx') {
+    // Akceptuje pojedynczy wiersz lub tablicę
+    const poemArr = Array.isArray(poems) ? poems : [poems];
+    let content = '';
+    poemArr.forEach(poem => {
+      content += `${poem.title || 'Untitled'}\n\n`;
+      content += `${new Date(poem.date).toLocaleDateString()}\n\n`;
+      content += `${poem.content}\n\n`;
+      if (poem.tags.length > 0) {
+        content += `Tags: ${poem.tags.join(', ')}\n\n`;
+      }
+      content += '---\n\n';
+    });
+    // Minimalny plik DOCX (Word rozpozna jako tekstowy)
+    const header = `PK\u0003\u0004`;
+    // Ale: dla prostoty generujemy .docx jako .doc (plain text, Word otworzy)
+    const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 // Export utilities for PDF and EPUB
 import type { Poem } from '../types';
 

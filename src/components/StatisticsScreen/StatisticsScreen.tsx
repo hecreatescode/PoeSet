@@ -33,56 +33,60 @@ const StatisticsScreen: React.FC = () => {
   
   const wordFrequency = getWordFrequency();
 
-  return (
-    <div>
-      <header className="mb-xl">
-        <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 300 }}>
-          {t.statistics.title}
-        </h1>
-        <p className="text-secondary">{t.statistics.subtitle}</p>
-      </header>
-
-      {/* Overview cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: 'var(--spacing-md)',
-        marginBottom: 'var(--spacing-xl)',
-      }}>
-        <div className="card" style={{ textAlign: 'center', cursor: 'default' }}>
-          <BarChart3 size={32} style={{ margin: '0 auto var(--spacing-sm)', opacity: 0.6 }} />
-          <p style={{ fontSize: '2rem', fontWeight: 300, marginBottom: 'var(--spacing-xs)' }}>
-            {stats.totalPoems}
-          </p>
-          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            {t.statistics.totalPoems}
-          </p>
-        </div>
-
-        <div className="card" style={{ textAlign: 'center', cursor: 'default' }}>
-          <TrendingUp size={32} style={{ margin: '0 auto var(--spacing-sm)', opacity: 0.6 }} />
-          <p style={{ fontSize: '2rem', fontWeight: 300, marginBottom: 'var(--spacing-xs)' }}>
-            {stats.writingStreak}
-          </p>
-          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            {t.statistics.currentStreak}
-          </p>
-        </div>
-
-        <div className="card" style={{ textAlign: 'center', cursor: 'default' }}>
-          <Calendar size={32} style={{ margin: '0 auto var(--spacing-sm)', opacity: 0.6 }} />
-          <p style={{ fontSize: '2rem', fontWeight: 300, marginBottom: 'var(--spacing-xs)' }}>
-            {stats.poemsThisWeek}
-          </p>
-          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            {t.statistics.averagePerWeek}
-          </p>
-        </div>
-
-        <div className="card" style={{ textAlign: 'center', cursor: 'default' }}>
-          <Clock size={32} style={{ margin: '0 auto var(--spacing-sm)', opacity: 0.6 }} />
-          <p style={{ fontSize: '2rem', fontWeight: 300, marginBottom: 'var(--spacing-xs)' }}>
-            {stats.poemsThisMonth}
+        {/* Word Frequency Chart */}
+        {wordFrequency.length > 0 && (
+          <div className="card" style={{ cursor: 'default' }}>
+            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <BarChart3 size={20} />
+              Najczęściej używane słowa
+            </h3>
+            <div style={{ width: '100%', overflowX: 'auto', paddingBottom: '1rem' }}>
+              <svg width={Math.max(400, wordFrequency.length * 40)} height="220">
+                {wordFrequency.map((item, idx) => {
+                  const barHeight = (item.count / wordFrequency[0].count) * 160;
+                  // Kolor motywu:
+                  const color = getComputedStyle(document.body).getPropertyValue('--accent-color') || '#2196f3';
+                  return (
+                    <g key={item.word}>
+                      <rect
+                        x={30 + idx * 35}
+                        y={180 - barHeight}
+                        width="28"
+                        height={barHeight}
+                        fill={color.trim()}
+                        rx="6"
+                        style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.08))' }}
+                      />
+                      <text
+                        x={44 + idx * 35}
+                        y={195}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fill="var(--text-secondary)"
+                        style={{ fontFamily: 'inherit' }}
+                      >
+                        {item.word}
+                      </text>
+                      <text
+                        x={44 + idx * 35}
+                        y={180 - barHeight - 8}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fill="var(--text-primary)"
+                        style={{ fontWeight: 600, fontFamily: 'inherit' }}
+                      >
+                        {item.count}
+                      </text>
+                    </g>
+                  );
+                })}
+                {/* Oś Y */}
+                <line x1="20" y1="0" x2="20" y2="180" stroke="#ccc" strokeWidth="1" />
+                <line x1="20" y1="180" x2={Math.max(400, wordFrequency.length * 40)} y2="180" stroke="#ccc" strokeWidth="1" />
+              </svg>
+            </div>
+          </div>
+        )}
           </p>
           <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
             {t.statistics.mostProductiveDay}

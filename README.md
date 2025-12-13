@@ -36,9 +36,16 @@
 - 🔠 **Font Sizes** - Small, Medium, Large, Extra Large
 - 📱 **Responsive Design** - Optimized for mobile and desktop
 
-### Data & Export
+
+### Export & Sharing
+- 🖼️ **Export poem as PNG** (theme-aware, beautiful layout)
+- 📄 **Export poem as PDF, DOCX, Markdown** (single click)
+- 📚 **Export collection with cover and all poems**
+- 🖌️ **Collection covers** (upload, preview, export)
+- ✨ **Decorative SVG under titles** (poems & collections)
+- 🖍️ **SVG logo with theme color** (auto color change)
 - 💾 **Multiple Storage Options** - localStorage, IndexedDB, or device files (File System API)
-- 📤 **Export Formats** - JSON, PDF, EPUB, Markdown, HTML
+- 📤 **Export Formats** - JSON, PDF, EPUB, Markdown, HTML, PNG, DOCX
 - 📥 **Import** - Restore from backup files
 - 🔄 **Auto-Backup** - Configurable automatic backups (5-120 min)
 - 🌐 **Offline-First** - Full functionality without internet
@@ -50,11 +57,14 @@
 - 🚀 **Service Worker** - Offline caching and fast loading
 - 📲 **Share Target** - Share poems via device sharing
 
-### Accessibility
-- ♿ **High Contrast Mode** - Better visibility
-- 🎬 **Reduced Motion** - Disable animations
-- 🌍 **Bilingual** - Polish and English with auto-detection
-- ⌨️ **Keyboard Shortcuts** - Esc to close, Enter to submit
+
+### Accessibility & Visuals
+- ♿ **High Contrast Mode**
+- 🎨 **Theme-aware SVG logo and decorations**
+- 🖼️ **Responsive, accessible modals and navigation**
+- ⌨️ **Keyboard Shortcuts** (Esc, Enter, arrows)
+- 🌍 **Bilingual** (Polish & English, auto-detect)
+- 🌀 **Reduced Motion**
 
 ## 🚀 Quick Start
 

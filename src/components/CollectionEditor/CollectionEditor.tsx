@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Save } from 'lucide-react';
 import type { Collection, Poem } from '../../types';
 import { saveCollection, getPoems } from '../../utils/storage';
 
-interface CollectionEditorProps {
   collection?: Collection;
   onSave: () => void;
   onClose: () => void;
@@ -21,10 +20,11 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
   const [color, setColor] = useState(collection?.color || COLORS[0]);
   const [selectedPoemIds, setSelectedPoemIds] = useState<string[]>(collection?.poemIds || []);
   const [allPoems] = useState<Poem[]>(() => getPoems());
+  const [coverImage, setCoverImage] = useState<string | undefined>(collection?.coverImage);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     if (!name.trim()) return;
-
     const collectionData: Collection = {
       id: collection?.id || `collection_${Date.now()}`,
       name: name.trim(),
@@ -32,10 +32,20 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
       color,
       poemIds: selectedPoemIds,
       createdAt: collection?.createdAt || new Date().toISOString(),
+      ...(coverImage ? { coverImage } : {}),
     };
-
     saveCollection(collectionData);
     onSave();
+  };
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setCoverImage(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const togglePoem = (poemId: string) => {
@@ -90,6 +100,31 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
         padding: 'var(--spacing-xl)',
         overflow: 'auto',
       }}>
+        {/* Cover upload */}
+        <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+          <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
+            Okładka zbioru
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={handleCoverChange}
+            />
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {coverImage ? 'Zmień okładkę' : 'Dodaj okładkę'}
+            </button>
+            {coverImage && (
+              <img src={coverImage} alt="Okładka" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--light-border)' }} />
+            )}
+          </div>
+        </div>
         <input
           type="text"
           className="input"

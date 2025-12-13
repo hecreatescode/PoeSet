@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { X, Edit, Trash2, Share2, History, Copy, Image, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Edit, Trash2, Share2, History, Copy, Image } from 'lucide-react';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import type { Poem, Theme } from '../../types';
@@ -22,7 +22,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const poemContentRef = useRef<HTMLDivElement>(null);
+  // const poemContentRef = useRef<HTMLDivElement>(null); // removed as unused
   const { t } = useLanguage();
   const settings = getSettings();
 
@@ -340,14 +340,25 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
         width: '100%',
       }}>
         {poem.title && (
-          <h1 className="font-serif" style={{ 
-            fontSize: '2rem', 
-            marginBottom: 'var(--spacing-lg)',
-            fontWeight: 400,
-            textAlign: 'center',
-          }}>
-            {poem.title}
-          </h1>
+          <>
+            <h1 className="font-serif" style={{ 
+              fontSize: '2rem', 
+              marginBottom: '0.25rem',
+              fontWeight: 400,
+              textAlign: 'center',
+              position: 'relative',
+              zIndex: 1,
+            }}>
+              {poem.title}
+            </h1>
+            {/* Ozdobnik SVG pod tytułem */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--spacing-lg)' }}>
+              <svg width="80" height="18" viewBox="0 0 80 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 15 Q40 2 78 15" stroke="var(--primary, #2563eb)" strokeWidth="2" fill="none"/>
+                <path d="M70 15 Q75 10 78 15 Q75 20 70 15 Z" fill="var(--primary, #2563eb)" opacity="0.5"/>
+              </svg>
+            </div>
+          </>
         )}
         
         {settings.enableMarkdown ? (
@@ -580,7 +591,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
               ? (t.common?.loading || 'Generowanie...') 
               : (t.share?.generateImage || 'Pobierz jako obraz PNG')}
           </button>
-          
+
           <button
             className="button button-secondary"
             onClick={() => {
@@ -591,6 +602,50 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
           >
             <Share2 size={20} />
             {t.share?.copyLink || 'Kopiuj tekst wiersza'}
+          </button>
+
+          <button
+            className="button button-secondary"
+            onClick={() => {
+              // Eksport do Markdown
+              import('../../utils/export').then(({ ExportService }) => {
+                ExportService.downloadFile(
+                  ExportService.exportToMarkdown([poem]),
+                  `${poem.title || 'wiersz'}.md`,
+                  'text/markdown'
+                );
+              });
+              setShowShareModal(false);
+            }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          >
+            <span style={{ fontWeight: 600 }}>MD</span> Pobierz Markdown
+          </button>
+
+          <button
+            className="button button-secondary"
+            onClick={() => {
+              import('../../utils/export').then(({ ExportService }) => {
+                ExportService.exportToPDF([poem]);
+              });
+              setShowShareModal(false);
+            }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          >
+            <span style={{ fontWeight: 600 }}>PDF</span> Pobierz PDF
+          </button>
+
+          <button
+            className="button button-secondary"
+            onClick={() => {
+              import('../../utils/export').then(({ ExportService }) => {
+                ExportService.exportToDocx(poem, `${poem.title || 'wiersz'}.docx`);
+              });
+              setShowShareModal(false);
+            }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+          >
+            <span style={{ fontWeight: 600 }}>DOCX</span> Pobierz DOCX
           </button>
         </div>
       </Modal>

@@ -238,26 +238,16 @@ function App() {
         zIndex: 999,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <img 
-            src="/logo.svg" 
-            alt="PoeSet Logo" 
-            style={{ 
-              width: '32px', 
-              height: '32px',
-              filter: 'var(--logo-filter, none)'
+          <img
+            src="/src/assets/logo/naglowek.svg"
+            alt="PoeSet Header"
+            style={{
+              width: '240px',
+              height: '48px',
+              color: 'var(--primary)', // automatyczny kolor z motywu
             }}
             className="app-logo"
           />
-          <h1 style={{
-            fontFamily: "'Jomhuria', serif",
-            fontSize: '3rem',
-            fontWeight: 400,
-            margin: 0,
-            letterSpacing: '2px',
-            color: 'var(--text-primary)',
-          }}>
-            PoeSet
-          </h1>
         </div>
       </header>
       <main className="main-content" style={{ paddingTop: '60px' }}>

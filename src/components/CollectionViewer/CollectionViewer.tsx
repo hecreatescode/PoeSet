@@ -140,18 +140,33 @@ const CollectionViewer: React.FC<CollectionViewerProps> = ({ collection, onClose
           borderLeft: `4px solid ${collection.color}`,
           paddingLeft: 'var(--spacing-lg)',
           marginBottom: 'var(--spacing-xl)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem',
         }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 400 }}>
-            {collection.name}
-          </h1>
-          {collection.description && (
-            <p className="text-secondary" style={{ fontSize: '1rem' }}>
-              {collection.description}
-            </p>
+          {collection.coverImage && (
+            <img src={collection.coverImage} alt="Okładka" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 12, border: '1px solid var(--light-border)' }} />
           )}
-          <p className="text-secondary" style={{ fontSize: '0.875rem', marginTop: 'var(--spacing-md)' }}>
-            {poems.length} {poems.length === 1 ? 'wiersz' : 'wierszy'}
-          </p>
+          <div>
+            <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem', fontWeight: 400, position: 'relative', zIndex: 1 }}>
+              {collection.name}
+            </h1>
+            {/* Ozdobnik SVG pod tytułem */}
+            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '0.5rem', marginLeft: '2px' }}>
+              <svg width="80" height="18" viewBox="0 0 80 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 15 Q40 2 78 15" stroke="var(--primary, #2563eb)" strokeWidth="2" fill="none"/>
+                <path d="M70 15 Q75 10 78 15 Q75 20 70 15 Z" fill="var(--primary, #2563eb)" opacity="0.5"/>
+              </svg>
+            </div>
+            {collection.description && (
+              <p className="text-secondary" style={{ fontSize: '1rem' }}>
+                {collection.description}
+              </p>
+            )}
+            <p className="text-secondary" style={{ fontSize: '0.875rem', marginTop: 'var(--spacing-md)' }}>
+              {poems.length} {poems.length === 1 ? 'wiersz' : 'wierszy'}
+            </p>
+          </div>
         </div>
 
         {poems.length === 0 ? (

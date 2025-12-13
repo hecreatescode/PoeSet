@@ -58,7 +58,9 @@ npm run lint
 - **TypeScript**: Use proper type annotations, avoid `any`
 - **React**: Use functional components with hooks
 - **Naming**: camelCase for variables/functions, PascalCase for components
-- **Comments**: Write clear comments for complex logic
+│   ├── CollectionEditor/   # Edytor zbiorów (okładki, eksport)
+│   ├── CollectionViewer/   # Widok zbioru (okładka, eksport, ozdobnik)
+│   └── PoemViewer/         # Widok wiersza (eksport PNG, PDF, DOCX, MD, ozdobnik)
 - **CSS**: Use CSS variables for theming
 - **Formatting**: Follow existing code formatting patterns
 
@@ -66,30 +68,28 @@ npm run lint
 
 - Use present tense ("Add feature" not "Added feature")
 - Use imperative mood ("Move cursor to..." not "Moves cursor to...")
-- Start with a capital letter
+│   ├── App.tsx         # Main app component with routing, logo SVG z motywem
 - Keep the first line under 50 characters
-- Reference issues and pull requests when relevant
+│   ├── App.css         # Global styles, 7 themes, theme-aware SVG
 
-Examples:
+│   ├── index.css       # CSS variables, animations, motywy
 ```
-Add voice dictation feature for poem editor
+│   └── main.tsx        # Entry point
 Fix responsive layout on mobile devices
-Update README with new features
+└── README.md           # Comprehensive documentation
 ```
 
-## Project Structure
-
-```
-PoeSet/
-├── public/              # Static assets
-│   ├── manifest.json    # PWA manifest (v2.0.1)
+## Key Technologies (v2.0.1+)
+- **React 19.2** - Latest React with automatic batching
+- **TypeScript 5.9** - Strict type checking
+- **Vite 7.2** - Lightning-fast build tool
+- **date-fns** - Date manipulation with Polish locale
+- **lucide-react** - Modern icon library
+- **SVG** - theme-aware logo and decorative elements
+- **Web APIs**: Speech Recognition, File System Access, Service Worker, IndexedDB
+- **Eksport**: PNG, PDF, DOCX, Markdown, kolekcje z okładką
 │   ├── logo.svg         # Theme-aware app logo (v2.0.1)
 │   └── service-worker.js # Service worker for offline caching
-├── src/
-│   ├── components/      # React components
-│   │   ├── JournalScreen/
-│   │   ├── PoemsScreen/
-│   │   ├── CollectionsScreen/
 │   │   ├── StatisticsScreen/
 │   │   ├── SettingsScreen/
 │   │   ├── TemplatesScreen/
@@ -97,6 +97,9 @@ PoeSet/
 │   │   ├── PoemEditor/
 │   │   └── PoemViewer/
 │   ├── i18n/           # Translations (PL/EN)
+
+## Documentation & Features
+- Opisuj nowe funkcje eksportu (PNG, PDF, DOCX, MD), okładki kolekcji, ozdobniki SVG, logo SVG z motywem w README.md i POESET_README.md
 │   ├── types/          # TypeScript interfaces
 │   ├── utils/          # Utility functions
 │   │   ├── storage.ts   # localStorage & IndexedDB

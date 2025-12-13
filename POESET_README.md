@@ -2,6 +2,8 @@
 
 **PoeSet** to elegancka, minimalistyczna aplikacja webowa do pisania, organizowania i analizowania poezji. Inspirowana estetyką vintage i duchem Edgara Allana Poe.
 
+Failed to load resource: the server responded with a status of 404 ()Understand this error
+PoeSet/:26 Service Worker registered: ServiceWorkerRegistration
 ![PoeSet](https://img.shields.io/badge/version-2.0.1-blue)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
@@ -47,12 +49,14 @@
 - Automatyczne sugestie tagów
 - Duplikacja wierszy
 
-### 📋 Szablony
-- **NOWE v2.0.0**: Pełny ekran zarządzania szablonami
-- Domyślne szablony: Sonet, Haiku, Limerick
-- **NOWE v2.0.0**: Tworzenie własnych szablonów
-- Edycja i usuwanie niestandardowych szablonów
-- Przykłady użycia dla każdego szablonu
+
+### 📤 Eksport i udostępnianie
+- 🖼️ Eksport wiersza jako PNG (zgodny z motywem, piękny layout)
+- 📄 Eksport wiersza jako PDF, DOCX, Markdown (jedno kliknięcie)
+- 📚 Eksport kolekcji z okładką i wszystkimi wierszami
+- 🖌️ Okładki kolekcji (upload, podgląd, eksport)
+- ✨ Ozdobniki SVG pod tytułami (wiersze i kolekcje)
+- 🖍️ Logo SVG z kolorem motywu (automatyczna zmiana)
 
 ### 📦 Operacje grupowe
 - **NOWE v2.0.0**: Tryb zaznaczania wielu wierszy
@@ -106,14 +110,15 @@ npm run build
 npm run preview
 ```
 
-## 🎨 Technologie
 
+## 🎨 Technologie
 - **React 19** - Biblioteka UI
 - **TypeScript** - Bezpieczeństwo typów
 - **Vite** - Szybki bundler
 - **date-fns** - Zarządzanie datami
 - **lucide-react** - Eleganckie ikony
-- **localStorage** - Lokalne przechowywanie danych
+- **localStorage, IndexedDB, File System API** - przechowywanie danych
+- **SVG** - logo i ozdobniki z obsługą motywów
 
 ## 📁 Struktura projektu
 
