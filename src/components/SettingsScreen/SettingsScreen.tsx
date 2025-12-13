@@ -13,10 +13,10 @@ function handleExport(settings: any) {
   downloadBackup(settings);
 }
 import { useState, useContext } from 'react';
-import { Type, Languages, X, AlignLeft, Maximize, FileText, Layout, Eye, HardDrive, Save, Download, Upload, Plus, Smile } from 'lucide-react';
+import { Type, Languages, AlignLeft, Maximize, FileText, Layout, Eye, HardDrive, Save, Download, Upload, Palette } from 'lucide-react';
 import { LanguageContext } from '../../i18n/languageContextInternal';
 import useSettings from '../../hooks/useSettings';
-import { DEFAULT_MOODS } from '../../types';
+// import { DEFAULT_MOODS } from '../../types';
 
 
 function handleImport(updateSetting: (key: string, value: any) => void) {
@@ -41,11 +41,7 @@ function handleImport(updateSetting: (key: string, value: any) => void) {
   input.click();
 }
 
-function handleRemoveCustomMood(mood: string, settings: any, updateSetting: (key: string, value: any) => void) {
-  const currentMoods = settings.customMoods || [];
-  const newCustomMoods = currentMoods.filter((m: string) => m !== mood);
-  updateSetting('customMoods', newCustomMoods);
-}
+// nieużywane
 
 const SettingsScreen = () => {
   const languageContext = useContext(LanguageContext);
@@ -61,24 +57,9 @@ const SettingsScreen = () => {
     }
   };
 
-  const handleRemoveCustomFont = (font: string) => {
-    const currentFonts = settings.customFonts || [];
-    const newCustomFonts = currentFonts.filter((f: string) => f !== font);
-    updateSetting('customFonts', newCustomFonts);
-    if (settings.selectedCustomFont === font) {
-      updateSetting('selectedCustomFont', undefined);
-      document.body.style.fontFamily = '';
-    }
-  };
+  // nieużywane
 
-  const handleSelectCustomFont = (font: string | undefined) => {
-    updateSetting('selectedCustomFont', font);
-    if (font) {
-      document.body.style.fontFamily = `"${font}", ${settings.fontFamily}`;
-    } else {
-      document.body.style.fontFamily = '';
-    }
-  };
+  // nieużywane
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'var(--spacing-md)' }}>
@@ -147,7 +128,7 @@ const SettingsScreen = () => {
               className={`button ${!settings.theme ? 'button-primary' : 'button-secondary'}`}
               onClick={() => updateSetting('theme', undefined)}
             >
-              {t.settings.defaultTheme || 'Domyślny'}
+              {t.editor?.defaultTheme || 'Domyślny'}
             </button>
             <button
               className={`button ${settings.theme === 'light' ? 'button-primary' : 'button-secondary'}`}
@@ -253,7 +234,7 @@ const SettingsScreen = () => {
               {t.accessibility.fontSize}
             </h3>
             <div style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-              {t.settings.fontSizeDesc || 'Dostosuj rozmiar tekstu w aplikacji'}
+              {t.settings.customFontsDesc || 'Dostosuj rozmiar tekstu w aplikacji'}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>A</span>
@@ -285,7 +266,7 @@ const SettingsScreen = () => {
               {t.settings.layoutWidth}
             </h3>
             <div style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-              {t.settings.layoutWidthDesc || 'Dostosuj szerokość treści aplikacji'}
+              {t.settings.layoutWidth || 'Dostosuj szerokość treści aplikacji'}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ width: 40, textAlign: 'center', fontSize: '0.9rem', opacity: 0.7 }}>{t.settings.narrow}</span>

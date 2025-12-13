@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { X, Save, Tag, Calendar, Eye, EyeOff, Smile, Lock, Mic, MicOff, Bold, Italic, Underline, Plus, Palette } from 'lucide-react';
-import type { Poem, MoodType, Theme } from '../../types';
+import { X, Save, Tag, Calendar, Eye, EyeOff, Smile, Lock, Mic, MicOff, Bold, Italic, Underline, Plus } from 'lucide-react';
+import type { Poem, MoodType } from '../../types';
 import { DEFAULT_MOODS } from '../../types';
 import { savePoem, getSettings, getPoems, saveSettings } from '../../utils/storage';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
@@ -89,7 +89,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
     if (!mood) return;
     
     const currentMoods = settings.customMoods || [];
-    if (currentMoods.includes(mood) || DEFAULT_MOODS.includes(mood as typeof DEFAULT_MOODS[number])) {
+    if (currentMoods.includes(mood) || DEFAULT_MOODS.includes(mood as (typeof DEFAULT_MOODS)[number])) {
       return;
     }
     
@@ -548,14 +548,14 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
             >
               {t.poems.allMoods}
             </button>
-            {DEFAULT_MOODS.map(moodType => (
+            {DEFAULT_MOODS.map((moodType: typeof DEFAULT_MOODS[number]) => (
               <button
                 key={moodType}
                 className={`button ${mood === moodType ? 'button-primary' : 'button-secondary'}`}
                 onClick={() => setMood(moodType)}
                 style={{ fontSize: '0.875rem' }}
               >
-                {t.mood[moodType]}
+                {t.mood && t.mood[moodType] ? t.mood[moodType] : moodType}
               </button>
             ))}
             {(settings.customMoods || []).map(customMood => (
