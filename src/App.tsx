@@ -19,6 +19,7 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('journal');
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [settings, setSettings] = useState(getSettings());
 
   // Swipe gesture state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
@@ -60,23 +61,20 @@ function App() {
 
   useEffect(() => {
     // Apply initial settings
-    const settings = getSettings();
-    document.body.setAttribute('data-theme', settings.theme);
-    document.body.classList.add(`font-${settings.fontFamily}`);
-    document.body.classList.add(`font-size-${settings.fontSize || 'medium'}`);
-    document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
-    document.body.classList.add(`layout-width-${settings.layoutWidth}`);
-    
-    if (settings.highContrast) {
+    const s = getSettings();
+    setSettings(s);
+    document.body.setAttribute('data-theme', s.theme);
+    document.body.classList.add(`font-${s.fontFamily}`);
+    document.body.classList.add(`font-size-${s.fontSize || 'medium'}`);
+    document.body.classList.add(`line-spacing-${s.lineSpacing}`);
+    document.body.classList.add(`layout-width-${s.layoutWidth}`);
+    if (s.highContrast) {
       document.body.classList.add('high-contrast');
     }
-    
-    if (settings.reducedMotion) {
+    if (s.reducedMotion) {
       document.body.classList.add('reduced-motion');
     }
-    
-    // Set initial screen from settings
-    setCurrentScreen(settings.startView);
+    setCurrentScreen(s.startView);
 
     // PWA install prompt
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -84,13 +82,29 @@ function App() {
       setDeferredPrompt(e);
       setShowInstallPrompt(true);
     };
-
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
+
+  // Listen for theme changes in settings
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'poeset_settings') {
+        const s = getSettings();
+        setSettings(s);
+        document.body.setAttribute('data-theme', s.theme);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  // React to theme change in settings (local update)
+  useEffect(() => {
+    document.body.setAttribute('data-theme', settings.theme);
+  }, [settings.theme]);
 
   // Swipe gesture handlers
   useEffect(() => {

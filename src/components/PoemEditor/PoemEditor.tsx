@@ -62,11 +62,9 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const [tagInput, setTagInput] = useState('');
   const [date, setDate] = useState(poem?.date.split('T')[0] || initialDate || new Date().toISOString().split('T')[0]);
   const [mood, setMood] = useState<MoodType | undefined>(poem?.mood);
-  const [poemTheme, setPoemTheme] = useState<Theme | undefined>(poem?.theme);
   const [showTagInput, setShowTagInput] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
-  const [showThemePicker, setShowThemePicker] = useState(false);
   const [showAddMoodInput, setShowAddMoodInput] = useState(false);
   const [newMoodInput, setNewMoodInput] = useState('');
   const [autoSaved, setAutoSaved] = useState(false);
@@ -204,7 +202,6 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
         date: `${date}T${new Date().toISOString().split('T')[1]}`,
         tags,
         mood,
-        theme: poemTheme,
         collectionIds: poem?.collectionIds || [],
         createdAt: poem?.createdAt || now,
         updatedAt: now,
@@ -219,7 +216,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [title, content, tags, mood, poemTheme, date, poem]);
+  }, [title, content, tags, mood, date, poem]);
 
   const handleSave = useCallback(() => {
     if (!content.trim()) return;
@@ -231,7 +228,6 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       date: `${date}T${new Date().toISOString().split('T')[1]}`,
       tags,
       mood,
-      theme: poemTheme,
       collectionIds: poem?.collectionIds || [],
       createdAt: poem?.createdAt || now,
       updatedAt: now,
@@ -239,7 +235,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
 
     savePoem(poemData);
     onSave(poemData);
-  }, [content, title, date, tags, mood, poemTheme, poem, onSave]);
+  }, [content, title, date, tags, mood, poem, onSave]);
 
   const handleAddTag = (tagToAdd?: string) => {
     const tag = (tagToAdd || tagInput).trim();
@@ -332,10 +328,6 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   return (
     <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
       background: 'var(--bg-primary)',
       zIndex: 1000,
       display: 'flex',
@@ -421,14 +413,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
           >
             <Smile size={20} />
           </button>
-          <button 
-            className={`button ${showThemePicker ? 'button-primary' : 'button-secondary'}`}
-            onClick={() => setShowThemePicker(!showThemePicker)}
-            style={{ padding: '0.5rem' }}
-            title="Motyw wiersza"
-          >
-            <Palette size={20} />
-          </button>
+          {/* Przycisk wyboru motywu usunięty */}
           <button 
             className="button button-secondary"
             onClick={() => setShowDatePicker(!showDatePicker)}
@@ -629,84 +614,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
         </div>
       )}
 
-      {/* Theme Picker */}
-      {showThemePicker && (
-        <div style={{
-          padding: 'var(--spacing-md)',
-          borderBottom: '1px solid var(--light-border)',
-        }}>
-          <label style={{ 
-            display: 'block', 
-            fontSize: '0.875rem', 
-            marginBottom: '0.5rem',
-            opacity: 0.7
-          }}>
-            {t.editor?.poemTheme || 'Motyw wiersza'}
-          </label>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-            gap: '0.5rem' 
-          }}>
-            <button
-              className={`button ${!poemTheme ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme(undefined)}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.editor?.defaultTheme || 'Domyślny'}
-            </button>
-            <button
-              className={`button ${poemTheme === 'light' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('light')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.light}
-            </button>
-            <button
-              className={`button ${poemTheme === 'dark' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('dark')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.dark}
-            </button>
-            <button
-              className={`button ${poemTheme === 'sepia' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('sepia')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.sepia}
-            </button>
-            <button
-              className={`button ${poemTheme === 'midnight' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('midnight')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.midnight}
-            </button>
-            <button
-              className={`button ${poemTheme === 'forest' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('forest')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.forest}
-            </button>
-            <button
-              className={`button ${poemTheme === 'ocean' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('ocean')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.ocean}
-            </button>
-            <button
-              className={`button ${poemTheme === 'rose' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setPoemTheme('rose')}
-              style={{ fontSize: '0.875rem' }}
-            >
-              {t.themes.rose}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Picker motywu usunięty */}
 
       {/* Date Picker */}
       {showDatePicker && (

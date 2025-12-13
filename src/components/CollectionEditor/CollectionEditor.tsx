@@ -3,6 +3,8 @@ import { X, Save } from 'lucide-react';
 import type { Collection, Poem } from '../../types';
 import { saveCollection, getPoems } from '../../utils/storage';
 
+
+interface CollectionEditorProps {
   collection?: Collection;
   onSave: () => void;
   onClose: () => void;

@@ -1,3 +1,7 @@
+// Export utilities for PDF and EPUB
+import type { Poem } from '../types';
+
+export class ExportService {
   static exportToDocx(poems: Poem[] | Poem, filename = 'poem.docx') {
     // Akceptuje pojedynczy wiersz lub tablicę
     const poemArr = Array.isArray(poems) ? poems : [poems];
@@ -12,7 +16,6 @@
       content += '---\n\n';
     });
     // Minimalny plik DOCX (Word rozpozna jako tekstowy)
-    const header = `PK\u0003\u0004`;
     // Ale: dla prostoty generujemy .docx jako .doc (plain text, Word otworzy)
     const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
     const url = URL.createObjectURL(blob);
@@ -24,23 +27,17 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
-// Export utilities for PDF and EPUB
-import type { Poem } from '../types';
-
-export class ExportService {
   static exportToMarkdown(poems: Poem[]): string {
     let markdown = '# My Poetry Collection\n\n';
-    
     poems.forEach(poem => {
       markdown += `## ${poem.title || 'Untitled'}\n\n`;
       markdown += `*${new Date(poem.date).toLocaleDateString()}*\n\n`;
-  markdown += `${poem.content}\n\n`;
-  if (poem.tags.length > 0) {
-    markdown += `Tags: ${poem.tags.join(', ')}\n\n`;
-  }
-  markdown += '---\n\n';
+      markdown += `${poem.content}\n\n`;
+      if (poem.tags.length > 0) {
+        markdown += `Tags: ${poem.tags.join(', ')}\n\n`;
+      }
+      markdown += '---\n\n';
     });
-    
     return markdown;
   }
 

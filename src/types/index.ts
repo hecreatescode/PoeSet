@@ -36,6 +36,7 @@ export interface Collection {
   createdAt: string;
   isPrivate?: boolean;
   order?: number;
+  coverImage?: string;
 }
 
 export interface DailyJournal {

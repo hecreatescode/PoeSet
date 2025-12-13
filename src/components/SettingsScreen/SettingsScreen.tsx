@@ -1,113 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Download, Upload, Type, AlignLeft, Layout, Palette, Eye, Maximize, Languages, Smile, Plus, X, Save, HardDrive } from 'lucide-react';
-import type { Settings } from '../../types';
-import { getSettings, saveSettings, exportAllData, importAllData, downloadBackup, startAutoBackup, stopAutoBackup } from '../../utils/storage';
-import { useLanguage } from '../../i18n/useLanguage';
+function downloadBackup(settings: any) {
+  const dataStr = JSON.stringify(settings, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'poeset-backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function handleExport(settings: any) {
+  downloadBackup(settings);
+}
+import { useState, useContext } from 'react';
+import { Type, Languages, X, AlignLeft, Maximize, FileText, Layout, Eye, HardDrive, Save, Download, Upload, Plus, Smile } from 'lucide-react';
+import { LanguageContext } from '../../i18n/languageContextInternal';
+import useSettings from '../../hooks/useSettings';
 import { DEFAULT_MOODS } from '../../types';
 
-const SettingsScreen: React.FC = () => {
-  const [settings, setSettings] = useState<Settings>(getSettings());
-  const { language, setLanguage, t } = useLanguage();
+
+function handleImport(updateSetting: (key: string, value: any) => void) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = async (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const file = target.files && target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const imported = JSON.parse(text);
+      Object.keys(imported).forEach(key => {
+        updateSetting(key, imported[key]);
+      });
+      alert('Import zakończony sukcesem!');
+    } catch {
+      alert('Błąd importu pliku.');
+    }
+  };
+  input.click();
+}
+
+function handleRemoveCustomMood(mood: string, settings: any, updateSetting: (key: string, value: any) => void) {
+  const currentMoods = settings.customMoods || [];
+  const newCustomMoods = currentMoods.filter((m: string) => m !== mood);
+  updateSetting('customMoods', newCustomMoods);
+}
+
+const SettingsScreen = () => {
+  const languageContext = useContext(LanguageContext);
+  if (!languageContext) throw new Error('LanguageContext not found');
+  const { t, language, setLanguage } = languageContext;
+  const { settings, updateSetting } = useSettings();
   const [newFont, setNewFont] = useState('');
 
-  const applySettings = React.useCallback((newSettings: Settings) => {
-    document.body.setAttribute('data-theme', newSettings.theme);
-    document.body.classList.remove('font-serif', 'font-sans');
-    document.body.classList.add(`font-${newSettings.fontFamily}`);
-    document.body.classList.remove('line-spacing-compact', 'line-spacing-normal', 'line-spacing-relaxed');
-    document.body.classList.add(`line-spacing-${newSettings.lineSpacing}`);
-    
-    // Font size
-    document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large', 'font-size-xlarge');
-    document.body.classList.add(`font-size-${newSettings.fontSize}`);
-    
-    // Layout width
-    document.body.classList.remove('layout-width-narrow', 'layout-width-medium', 'layout-width-wide', 'layout-width-full');
-    document.body.classList.add(`layout-width-${newSettings.layoutWidth}`);
-    
-    // Accessibility
-    if (newSettings.highContrast) {
-      document.body.classList.add('high-contrast');
-    } else {
-      document.body.classList.remove('high-contrast');
+  const handleAddCustomFont = (font: string) => {
+    if (!settings.customFonts?.includes(font)) {
+      updateSetting('customFonts', [...(settings.customFonts || []), font]);
+      setNewFont('');
     }
-    
-    if (newSettings.reducedMotion) {
-      document.body.classList.add('reduced-motion');
-    } else {
-      document.body.classList.remove('reduced-motion');
-    }
-  }, []);
-
-  useEffect(() => {
-    applySettings(settings);
-    
-    // Load custom fonts
-    const customFonts = settings.customFonts || [];
-        {/* Font Size & Layout Width */}
-        <div className="card" style={{ cursor: 'default', marginBottom: 'var(--spacing-lg)' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Type size={20} />
-            {t.settings.fontSize || 'Rozmiar czcionki'}
-          </h3>
-          <input
-            type="range"
-            min={0}
-            max={3}
-            value={['small','medium','large','xlarge'].indexOf(settings.fontSize)}
-            onChange={e => {
-              const idx = parseInt(e.target.value, 10);
-              updateSetting('fontSize', ['small','medium','large','xlarge'][idx]);
-            }}
-            style={{ width: '100%' }}
-          />
-          <div style={{ marginTop: '0.5rem', textAlign: 'center', fontSize: '1.2em' }}>
-            {t.settings[settings.fontSize] || settings.fontSize}
-          </div>
-        </div>
-        <div className="card" style={{ cursor: 'default', marginBottom: 'var(--spacing-lg)' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Layout size={20} />
-            {t.settings.layoutWidth || 'Szerokość układu'}
-          </h3>
-          <input
-            type="range"
-            min={0}
-            max={3}
-            value={['narrow','medium','wide','full'].indexOf(settings.layoutWidth)}
-            onChange={e => {
-              const idx = parseInt(e.target.value, 10);
-              updateSetting('layoutWidth', ['narrow','medium','wide','full'][idx]);
-            }}
-            style={{ width: '100%' }}
-          />
-          <div style={{ marginTop: '0.5rem', textAlign: 'center', fontSize: '1.2em' }}>
-            {t.settings[settings.layoutWidth] || settings.layoutWidth}
-          </div>
-        </div>
-    const currentFonts = settings.customFonts || [];
-    if (currentFonts.includes(font)) {
-      alert('Ta czcionka jest już dodana!');
-      return;
-    }
-    
-    // Load Google Font dynamically
-    const link = document.createElement('link');
-    link.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}&display=swap`;
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-    
-    const newCustomFonts = [...currentFonts, font];
-    updateSetting('customFonts', newCustomFonts);
-    setNewFont('');
   };
 
   const handleRemoveCustomFont = (font: string) => {
     const currentFonts = settings.customFonts || [];
-    const newCustomFonts = currentFonts.filter(f => f !== font);
+    const newCustomFonts = currentFonts.filter((f: string) => f !== font);
     updateSetting('customFonts', newCustomFonts);
-    
-    // If this was the selected font, reset to default
     if (settings.selectedCustomFont === font) {
       updateSetting('selectedCustomFont', undefined);
       document.body.style.fontFamily = '';
@@ -155,82 +112,6 @@ const SettingsScreen: React.FC = () => {
             {(settings.customFonts || []).length === 0 && (
               <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{t.settings.noCustomFonts || 'Brak dodanych czcionek.'}</span>
             )}
-            {(settings.customFonts || []).map(font => (
-              <div key={font} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: `'${font}', ${settings.fontFamily}` }}>
-                <input
-                  type="radio"
-                  checked={settings.selectedCustomFont === font}
-                  onChange={() => handleSelectCustomFont(font)}
-                  name="customFontSelect"
-                  style={{ accentColor: 'var(--accent-color)' }}
-                />
-                <span>{font}</span>
-                <button onClick={() => handleRemoveCustomFont(font)} style={{ background: 'none', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', marginLeft: 'auto' }} title={t.settings.removeFont || 'Usuń czcionkę'}>
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
-            {settings.selectedCustomFont && (
-              <button onClick={() => handleSelectCustomFont(undefined)} className="button button-secondary" style={{ marginTop: '0.5rem', alignSelf: 'flex-start' }}>
-                {t.settings.resetFont || 'Przywróć domyślną czcionkę'}
-              </button>
-            )}
-          </div>
-        </div>
-        {/* Theme */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Palette size={20} />
-            {t.settings.theme}
-          </h3>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', 
-            gap: 'var(--spacing-sm)'
-          }}>
-            <button
-              className={`button ${settings.theme === 'light' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'light')}
-            >
-              {t.themes.light}
-            </button>
-            <button
-              className={`button ${settings.theme === 'dark' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'dark')}
-            >
-              {t.themes.dark}
-            </button>
-            <button
-              className={`button ${settings.theme === 'sepia' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'sepia')}
-            >
-              {t.themes.sepia}
-            </button>
-            <button
-              className={`button ${settings.theme === 'midnight' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'midnight')}
-            >
-              {t.themes.midnight}
-            </button>
-            <button
-              className={`button ${settings.theme === 'forest' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'forest')}
-            >
-              {t.themes.forest}
-            </button>
-            <button
-              className={`button ${settings.theme === 'ocean' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'ocean')}
-            >
-              {t.themes.ocean}
-            </button>
-            <button
-              className={`button ${settings.theme === 'rose' ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => updateSetting('theme', 'rose')}
-            >
-              {t.themes.rose}
-            </button>
-          </div>
         </div>
 
         {/* Font family */}
@@ -251,6 +132,64 @@ const SettingsScreen: React.FC = () => {
               onClick={() => updateSetting('fontFamily', 'sans-serif')}
             >
               {t.settings.sansSerif}
+            </button>
+          </div>
+        </div>
+
+        {/* Theme Picker */}
+        <div className="card" style={{ cursor: 'default' }}>
+          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <Palette size={20} />
+            {t.settings.theme || 'Motyw aplikacji'}
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 'var(--spacing-sm)' }}>
+            <button
+              className={`button ${!settings.theme ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', undefined)}
+            >
+              {t.settings.defaultTheme || 'Domyślny'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'light' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'light')}
+            >
+              {t.themes?.light || 'Jasny'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'dark' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'dark')}
+            >
+              {t.themes?.dark || 'Ciemny'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'sepia' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'sepia')}
+            >
+              {t.themes?.sepia || 'Sepia'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'midnight' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'midnight')}
+            >
+              {t.themes?.midnight || 'Nocny'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'forest' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'forest')}
+            >
+              {t.themes?.forest || 'Las'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'ocean' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'ocean')}
+            >
+              {t.themes?.ocean || 'Ocean'}
+            </button>
+            <button
+              className={`button ${settings.theme === 'rose' ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => updateSetting('theme', 'rose')}
+            >
+              {t.themes?.rose || 'Różany'}
             </button>
           </div>
         </div>
@@ -305,72 +244,71 @@ const SettingsScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Font Size */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Type size={20} />
-            {t.accessibility.fontSize}
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <div className="slider-current-value">
-              {settings.fontSize === 'small' ? t.accessibility.small : 
-               settings.fontSize === 'medium' ? t.accessibility.medium : 
-               settings.fontSize === 'large' ? t.accessibility.large : 
-               t.accessibility.xlarge}
+
+        {/* Font Size & Layout Width (Redesigned) */}
+        <div className="card" style={{ cursor: 'default', display: 'flex', flexWrap: 'wrap', gap: '2rem', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <Type size={20} />
+              {t.accessibility.fontSize}
+            </h3>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              {t.settings.fontSizeDesc || 'Dostosuj rozmiar tekstu w aplikacji'}
             </div>
-            <input
-              type="range"
-              min="0"
-              max="3"
-              step="1"
-              value={settings.fontSize === 'small' ? 0 : settings.fontSize === 'medium' ? 1 : settings.fontSize === 'large' ? 2 : 3}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                const sizes = ['small', 'medium', 'large', 'xlarge'] as const;
-                updateSetting('fontSize', sizes[value]);
-              }}
-              style={{ width: '100%' }}
-            />
-            <div className="slider-labels" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ fontSize: '0.85rem', opacity: 0.7 }}>A</span>
-              <span style={{ fontSize: '1.1rem', opacity: 0.8 }}>A</span>
-              <span style={{ fontSize: '1.35rem', opacity: 0.9 }}>A</span>
+              <input
+                type="range"
+                min="0"
+                max="3"
+                step="1"
+                value={settings.fontSize === 'small' ? 0 : settings.fontSize === 'medium' ? 1 : settings.fontSize === 'large' ? 2 : 3}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  const sizes = ['small', 'medium', 'large', 'xlarge'] as const;
+                  updateSetting('fontSize', sizes[value]);
+                }}
+                style={{ flex: 1 }}
+              />
               <span style={{ fontSize: '1.6rem', fontWeight: 600 }}>A</span>
             </div>
-          </div>
-        </div>
-
-        {/* Layout Width */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Maximize size={20} />
-            {t.settings.layoutWidth}
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <div className="slider-current-value">
-              {settings.layoutWidth === 'narrow' ? `${t.settings.narrow} (600px)` : 
-               settings.layoutWidth === 'medium' ? `${t.settings.medium} (900px)` : 
-               settings.layoutWidth === 'wide' ? `${t.settings.wide} (1200px)` : 
-               `${t.settings.full} (100%)`}
+            <div style={{ marginTop: 4, fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+              {settings.fontSize === 'small' ? t.accessibility.small :
+                settings.fontSize === 'medium' ? t.accessibility.medium :
+                settings.fontSize === 'large' ? t.accessibility.large :
+                t.accessibility.xlarge}
             </div>
-            <input
-              type="range"
-              min="0"
-              max="3"
-              step="1"
-              value={settings.layoutWidth === 'narrow' ? 0 : settings.layoutWidth === 'medium' ? 1 : settings.layoutWidth === 'wide' ? 2 : 3}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                const widths = ['narrow', 'medium', 'wide', 'full'] as const;
-                updateSetting('layoutWidth', widths[value]);
-              }}
-              style={{ width: '100%' }}
-            />
-            <div className="slider-labels" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+          </div>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <Maximize size={20} />
+              {t.settings.layoutWidth}
+            </h3>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              {t.settings.layoutWidthDesc || 'Dostosuj szerokość treści aplikacji'}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ width: 40, textAlign: 'center', fontSize: '0.9rem', opacity: 0.7 }}>{t.settings.narrow}</span>
-              <span style={{ width: 60, textAlign: 'center', fontSize: '1.1rem', opacity: 0.8 }}>{t.settings.medium}</span>
-              <span style={{ width: 80, textAlign: 'center', fontSize: '1.25rem', opacity: 0.9 }}>{t.settings.wide}</span>
+              <input
+                type="range"
+                min="0"
+                max="3"
+                step="1"
+                value={settings.layoutWidth === 'narrow' ? 0 : settings.layoutWidth === 'medium' ? 1 : settings.layoutWidth === 'wide' ? 2 : 3}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  const widths = ['narrow', 'medium', 'wide', 'full'] as const;
+                  updateSetting('layoutWidth', widths[value]);
+                }}
+                style={{ flex: 1 }}
+              />
               <span style={{ width: 100, textAlign: 'center', fontSize: '1.35rem', fontWeight: 600 }}>{t.settings.full}</span>
+            </div>
+            <div style={{ marginTop: 4, fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+              {settings.layoutWidth === 'narrow' ? `${t.settings.narrow} (600px)` :
+                settings.layoutWidth === 'medium' ? `${t.settings.medium} (900px)` :
+                settings.layoutWidth === 'wide' ? `${t.settings.wide} (1200px)` :
+                `${t.settings.full} (100%)`}
             </div>
           </div>
         </div>
@@ -518,7 +456,7 @@ const SettingsScreen: React.FC = () => {
           }}>
             <button 
               className="button button-primary" 
-              onClick={() => downloadBackup()}
+              onClick={() => downloadBackup(settings)}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
             >
               <Save size={24} />
@@ -526,7 +464,7 @@ const SettingsScreen: React.FC = () => {
             </button>
             <button 
               className="button button-secondary" 
-              onClick={handleExport}
+              onClick={() => handleExport(settings)}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
             >
               <Download size={24} />
@@ -534,7 +472,7 @@ const SettingsScreen: React.FC = () => {
             </button>
             <button 
               className="button button-secondary" 
-              onClick={handleImport}
+              onClick={() => handleImport(updateSetting)}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
             >
               <Upload size={24} />
@@ -581,164 +519,8 @@ const SettingsScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Custom Google Fonts */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Type size={20} />
-            Niestandardowe czcionki Google
-          </h3>
-          
-          <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: 'var(--spacing-md)' }}>
-            Dodaj czcionki z Google Fonts (np. "Roboto", "Playfair Display", "Lora")
-          </p>
 
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: 'var(--spacing-md)' }}>
-            <input
-              type="text"
-              className="input"
-              value={newFont}
-              onChange={(e) => setNewFont(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAddCustomFont()}
-              placeholder="Nazwa czcionki Google..."
-              style={{ flex: 1 }}
-            />
-            <button 
-              className="button button-primary"
-              onClick={handleAddCustomFont}
-              disabled={!newFont.trim()}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <Plus size={18} />
-              Dodaj
-            </button>
-          </div>
 
-          {(settings.customFonts || []).length > 0 && (
-            <div style={{ marginBottom: 'var(--spacing-md)' }}>
-              <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-                Dostępne czcionki:
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.5rem' }}>
-                <button
-                  className={`button ${!settings.selectedCustomFont ? 'button-primary' : 'button-secondary'}`}
-                  onClick={() => handleSelectCustomFont(undefined)}
-                  style={{ fontSize: '0.875rem' }}
-                >
-                  Domyślna
-                </button>
-                {(settings.customFonts || []).map(font => (
-                  <div key={font} style={{ position: 'relative' }}>
-                    <button
-                      className={`button ${settings.selectedCustomFont === font ? 'button-primary' : 'button-secondary'}`}
-                      onClick={() => handleSelectCustomFont(font)}
-                      style={{ width: '100%', fontSize: '0.875rem', fontFamily: `"${font}", ${settings.fontFamily}` }}
-                    >
-                      {font}
-                    </button>
-                    <button
-                      onClick={() => handleRemoveCustomFont(font)}
-                      style={{
-                        position: 'absolute',
-                        top: '-8px',
-                        right: '-8px',
-                        background: 'var(--accent-color)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '24px',
-                        height: '24px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                      }}
-                      title="Usuń"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Custom Moods */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Smile size={20} />
-            {t.settings.customMoods || 'Niestandardowe nastroje'}
-          </h3>
-          
-          <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: 'var(--spacing-md)' }}>
-            {t.settings.defaultMoodsNote || 'Domyślne nastroje'}: {DEFAULT_MOODS.map(m => t.mood[m]).join(', ')}
-          </p>
-
-          <div style={{ 
-            background: 'var(--bg-secondary)', 
-            borderRadius: 'var(--radius-md)', 
-            padding: 'var(--spacing-md)',
-            marginBottom: 'var(--spacing-md)',
-            border: '1px solid var(--border-color)'
-          }}>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: 'var(--spacing-sm)' }}>
-              💡 {settings.language === 'pl' 
-                ? 'Możesz dodawać niestandardowe nastroje bezpośrednio podczas edycji wiersza, klikając ikonę nastroju.' 
-                : 'You can add custom moods directly while editing a poem by clicking the mood icon.'}
-            </p>
-          </div>
-
-          {(settings.customMoods || []).length > 0 && (
-            <div>
-              <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.5rem' }}>
-                {t.settings.yourMoods || 'Twoje nastroje'}:
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {(settings.customMoods || []).map(mood => (
-                  <div
-                    key={mood}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      background: 'var(--accent-color)',
-                      color: 'white',
-                      borderRadius: 'var(--radius-full)',
-                      fontSize: '0.875rem',
-                    }}
-                  >
-                    <span>{mood}</span>
-                    <button
-                      onClick={() => handleRemoveCustomMood(mood)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                        padding: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                      title={settings.language === 'pl' ? 'Usuń' : 'Remove'}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {(settings.customMoods || []).length === 0 && (
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
-              {settings.language === 'pl' 
-                ? 'Nie masz jeszcze żadnych niestandardowych nastrojów.' 
-                : 'You don\'t have any custom moods yet.'}
-            </p>
-          )}
-        </div>
 
         {/* About */}
         <div className="card" style={{ cursor: 'default' }}>
@@ -757,7 +539,7 @@ const SettingsScreen: React.FC = () => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
-
 export default SettingsScreen;

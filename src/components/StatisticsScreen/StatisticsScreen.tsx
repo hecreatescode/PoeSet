@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, TrendingUp, Calendar, Clock, Tag } from 'lucide-react';
+import { BarChart3, Calendar, Clock, Tag } from 'lucide-react';
 import { getPoems } from '../../utils/storage';
 import { calculateStatistics } from '../../utils/statistics';
 import { useLanguage } from '../../i18n/useLanguage';
@@ -33,6 +33,15 @@ const StatisticsScreen: React.FC = () => {
   
   const wordFrequency = getWordFrequency();
 
+  return (
+    <div style={{ maxWidth: '900px', margin: '0 auto', padding: 'var(--spacing-md)' }}>
+      <header className="mb-xl" style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.5rem', fontWeight: 300 }}>
+          {t.statistics.title}
+        </h1>
+        <p className="text-secondary" style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}>{t.statistics.subtitle}</p>
+      </header>
+      <div>
         {/* Word Frequency Chart */}
         {wordFrequency.length > 0 && (
           <div className="card" style={{ cursor: 'default' }}>
@@ -87,158 +96,152 @@ const StatisticsScreen: React.FC = () => {
             </div>
           </div>
         )}
-          </p>
-          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            {t.statistics.mostProductiveDay}
-          </p>
-        </div>
-      </div>
-
-      {/* Detailed stats */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-        {/* Most productive day */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Calendar size={20} />
-            {t.statistics.mostProductiveDay}
-          </h3>
-          <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-            {stats.mostProductiveDay === 'Brak danych' ? t.statistics.noData : stats.mostProductiveDay}
-          </p>
-        </div>
-
-        {/* Most productive hour */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <Clock size={20} />
-            {t.statistics.mostProductiveHour}
-          </h3>
-          <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-            {stats.mostProductiveHour}:00 - {stats.mostProductiveHour + 1}:00
-          </p>
-        </div>
-
-        {/* Average length */}
-        <div className="card" style={{ cursor: 'default' }}>
-          <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-            <BarChart3 size={20} />
-            {t.statistics.averageLength}
-          </h3>
-          <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-            {stats.averageLength} {t.statistics.characters}
-          </p>
-        </div>
-
-        {/* Most used tags */}
-        {stats.mostUsedTags.length > 0 && (
+        {/* Detailed stats */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+          {/* Most productive day */}
           <div className="card" style={{ cursor: 'default' }}>
             <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-              <Tag size={20} />
-              {t.statistics.popularTags}
+              <Calendar size={20} />
+              {t.statistics.mostProductiveDay}
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-              {stats.mostUsedTags.map((item, index) => (
-                <div key={item.tag} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                  <span style={{ 
-                    fontSize: '1.5rem', 
-                    fontWeight: 300,
-                    minWidth: '2rem',
-                    color: 'var(--light-text-secondary)',
+            <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
+              {stats.mostProductiveDay === 'Brak danych' ? t.statistics.noData : stats.mostProductiveDay}
+            </p>
+          </div>
+
+          {/* Most productive hour */}
+          <div className="card" style={{ cursor: 'default' }}>
+            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <Clock size={20} />
+              {t.statistics.mostProductiveHour}
+            </h3>
+            <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
+              {stats.mostProductiveHour}:00 - {stats.mostProductiveHour + 1}:00
+            </p>
+          </div>
+
+          {/* Average length */}
+          <div className="card" style={{ cursor: 'default' }}>
+            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+              <BarChart3 size={20} />
+              {t.statistics.averageLength}
+            </h3>
+            <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
+              {stats.averageLength} {t.statistics.characters}
+            </p>
+          </div>
+
+          {/* Most used tags */}
+          {stats.mostUsedTags.length > 0 && (
+            <div className="card" style={{ cursor: 'default' }}>
+              <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                <Tag size={20} />
+                {t.statistics.popularTags}
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                {stats.mostUsedTags.map((item, index) => (
+                  <div key={item.tag} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+                    <span style={{ 
+                      fontSize: '1.5rem', 
+                      fontWeight: 300,
+                      minWidth: '2rem',
+                      color: 'var(--light-text-secondary)',
+                    }}>
+                      {index + 1}.
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        height: '2rem',
+                        background: 'var(--light-border)',
+                        borderRadius: 'var(--radius-sm)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          height: '100%',
+                          width: `${(item.count / stats.mostUsedTags[0].count) * 100}%`,
+                          background: 'var(--light-accent)',
+                          transition: 'width var(--transition-normal)',
+                        }} />
+                        <span style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: 'var(--spacing-md)',
+                          transform: 'translateY(-50%)',
+                          fontWeight: 500,
+                          color: 'white',
+                          mixBlendMode: 'difference',
+                        }}>
+                          {item.tag}
+                        </span>
+                      </div>
+                    </div>
+                    <span style={{ fontWeight: 500, minWidth: '3rem', textAlign: 'right' }}>
+                      {item.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Word Frequency */}
+          {wordFrequency.length > 0 && (
+            <div className="card" style={{ cursor: 'default' }}>
+              <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                <Tag size={20} />
+                Najczęściej używane słowa
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
+                {wordFrequency.map((item, index) => (
+                  <div key={item.word} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--spacing-md)',
                   }}>
-                    {index + 1}.
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{
-                      height: '2rem',
-                      background: 'var(--light-border)',
-                      borderRadius: 'var(--radius-sm)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}>
+                    <div style={{ flex: 1, position: 'relative', minHeight: '2rem' }}>
                       <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        height: '100%',
-                        width: `${(item.count / stats.mostUsedTags[0].count) * 100}%`,
-                        background: 'var(--light-accent)',
-                        transition: 'width var(--transition-normal)',
-                      }} />
-                      <span style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: 'var(--spacing-md)',
-                        transform: 'translateY(-50%)',
-                        fontWeight: 500,
-                        color: 'white',
-                        mixBlendMode: 'difference',
+                        position: 'relative',
+                        height: '2rem',
+                        borderRadius: 'var(--radius-sm)',
+                        overflow: 'hidden',
                       }}>
-                        {item.tag}
-                      </span>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          height: '100%',
+                          width: `${(item.count / wordFrequency[0].count) * 100}%`,
+                          background: `hsl(${200 - index * 5}, 70%, 50%)`,
+                          transition: 'width var(--transition-normal)',
+                        }} />
+                        <span style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: 'var(--spacing-md)',
+                          transform: 'translateY(-50%)',
+                          fontWeight: 500,
+                          zIndex: 1,
+                        }}>
+                          {item.word}
+                        </span>
+                      </div>
                     </div>
+                    <span style={{ fontWeight: 500, minWidth: '3rem', textAlign: 'right' }}>
+                      {item.count}
+                    </span>
                   </div>
-                  <span style={{ fontWeight: 500, minWidth: '3rem', textAlign: 'right' }}>
-                    {item.count}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Word Frequency */}
-        {wordFrequency.length > 0 && (
-          <div className="card" style={{ cursor: 'default' }}>
-            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-              <Tag size={20} />
-              Najczęściej używane słowa
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xs)' }}>
-              {wordFrequency.map((item, index) => (
-                <div key={item.word} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--spacing-md)',
-                }}>
-                  <div style={{ flex: 1, position: 'relative', minHeight: '2rem' }}>
-                    <div style={{
-                      position: 'relative',
-                      height: '2rem',
-                      borderRadius: 'var(--radius-sm)',
-                      overflow: 'hidden',
-                    }}>
-                      <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        height: '100%',
-                        width: `${(item.count / wordFrequency[0].count) * 100}%`,
-                        background: `hsl(${200 - index * 5}, 70%, 50%)`,
-                        transition: 'width var(--transition-normal)',
-                      }} />
-                      <span style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: 'var(--spacing-md)',
-                        transform: 'translateY(-50%)',
-                        fontWeight: 500,
-                        zIndex: 1,
-                      }}>
-                        {item.word}
-                      </span>
-                    </div>
-                  </div>
-                  <span style={{ fontWeight: 500, minWidth: '3rem', textAlign: 'right' }}>
-                    {item.count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default StatisticsScreen;
