@@ -107,8 +107,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
     const totalHeight = padding * 2 + titleHeight + contentHeight + dateHeight + 40;
 
     // Ustaw docelową rozdzielczość i skalowanie
-    const contentHeight = contentLines.length * lineHeight;
-    const totalHeight = padding * 2 + titleHeight + contentHeight + dateHeight + 40;
+    // ...existing code...
     // Canvas zawsze 1080x1350 (lub wyższy, jeśli content dłuższy)
     canvas.width = targetWidth * scale;
     canvas.height = Math.max(targetHeight * scale, totalHeight * scale);
@@ -405,7 +404,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
             {format(new Date(poem.date), 'd MMMM yyyy', { locale: pl })}
           </p>
 
-          {(poem.moods && poem.moods.length > 0 || poem.mood) && (
+          {(poem.moods && poem.moods.length > 0) && (
             <div style={{
               display: 'flex',
               gap: '0.5rem',
@@ -413,7 +412,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
               justifyContent: 'center',
               marginBottom: poem.tags.length > 0 ? '0.5rem' : 0
             }}>
-              {(poem.moods && poem.moods.length > 0 ? poem.moods : poem.mood ? [poem.mood] : []).map(mood => (
+              {poem.moods.map(mood => (
                 <span
                   key={mood}
                   style={{
@@ -425,7 +424,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
                     letterSpacing: 0.5,
                   }}
                 >
-                  {t.mood && t.mood[mood] ? t.mood[mood] : mood}
+                  {t.mood && t.mood[mood as keyof typeof t.mood] ? t.mood[mood as keyof typeof t.mood] : mood}
                 </span>
               ))}
             </div>

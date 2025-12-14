@@ -1,13 +1,11 @@
 import React from 'react';
-import { BarChart3, Calendar, Clock, Tag } from 'lucide-react';
+import { BarChart3, Tag } from 'lucide-react';
 import { getPoems } from '../../utils/storage';
-import { calculateStatistics } from '../../utils/statistics';
 import { useLanguage } from '../../i18n/useLanguage';
 
 const StatisticsScreen: React.FC = () => {
   const { t } = useLanguage();
   const poems = getPoems();
-  const stats = calculateStatistics(poems);
 
   // Word frequency analysis
   const getWordFrequency = () => {
@@ -97,46 +95,6 @@ const StatisticsScreen: React.FC = () => {
           </div>
         )}
         {/* ...usunięto duplikat najczęściej używane słowa... */}
-                      {index + 1}.
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        height: '2rem',
-                        background: 'var(--light-border)',
-                        borderRadius: 'var(--radius-sm)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                      }}>
-                        <div style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          height: '100%',
-                          width: `${(item.count / stats.mostUsedTags[0].count) * 100}%`,
-                          background: 'var(--light-accent)',
-                          transition: 'width var(--transition-normal)',
-                        }} />
-                        <span style={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: 'var(--spacing-md)',
-                          transform: 'translateY(-50%)',
-                          fontWeight: 500,
-                          color: 'white',
-                          mixBlendMode: 'difference',
-                        }}>
-                          {item.tag}
-                        </span>
-                      </div>
-                    </div>
-                    <span style={{ fontWeight: 500, minWidth: '3rem', textAlign: 'right' }}>
-                      {item.count}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Word Frequency */}
           {wordFrequency.length > 0 && (
@@ -188,10 +146,11 @@ const StatisticsScreen: React.FC = () => {
               </div>
             </div>
           )}
+
         </div>
       </div>
-    </div>
   );
 }
 
 export default StatisticsScreen;
+

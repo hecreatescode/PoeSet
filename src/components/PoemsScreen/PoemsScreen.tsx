@@ -3,7 +3,8 @@ import { useNotification } from '../Notification';
 import Modal from '../Modal/Modal';
 import { Search, Filter, CheckSquare, Trash2, FolderPlus } from 'lucide-react';
 import type { Poem, MoodType } from '../../types';
-import { getPoems, deletePoem, addPoemToCollection, getCollections, getSettings, DEFAULT_MOODS } from '../../utils/storage';
+import { getPoems, deletePoem, addPoemToCollection, getCollections, getSettings } from '../../utils/storage';
+import { DEFAULT_MOODS } from '../../types';
 import { format } from 'date-fns';
 import { pl, enUS } from 'date-fns/locale';
 import PoemViewer from '../PoemViewer/PoemViewer';
@@ -100,11 +101,8 @@ const PoemsScreen: React.FC = () => {
     // Mood filter
     if (selectedMoods.length > 0) {
       filtered = filtered.filter(p => {
-        // obsługa zarówno moods (tablica), jak i mood (string)
         if (Array.isArray(p.moods) && p.moods.length > 0) {
           return p.moods.some(m => selectedMoods.includes(m));
-        } else if (p.mood) {
-          return selectedMoods.includes(p.mood);
         }
         return false;
       });
@@ -125,7 +123,7 @@ const PoemsScreen: React.FC = () => {
     });
 
     return filtered;
-  }, [poems, searchQuery, sortBy, dateFrom, dateTo, minLength, maxLength, selectedMood]);
+  }, [poems, searchQuery, sortBy, dateFrom, dateTo, minLength, maxLength, selectedMoods]);
 
   const displayedPoems = useMemo(() => 
     filteredPoems.slice(0, displayCount),
@@ -184,7 +182,7 @@ const PoemsScreen: React.FC = () => {
   };
   {/* Modal potwierdzenia usuwania */}
   {showDeleteModal && (
-    <Modal onClose={() => setShowDeleteModal(false)}>
+    <Modal isOpen={showDeleteModal} title="Potwierdź usunięcie" onClose={() => setShowDeleteModal(false)}>
       <div style={{ padding: '1.5rem', textAlign: 'center' }}>
         <h2 style={{ marginBottom: '1rem' }}>Potwierdź usunięcie</h2>
         <p>Czy na pewno chcesz usunąć {pendingDeleteCount} {pendingDeleteCount === 1 ? 'wiersz' : 'wierszy'}?</p>

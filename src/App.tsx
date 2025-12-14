@@ -1,9 +1,4 @@
-  // Reaguj na zmianę odstępów między wersami (lineSpacing)
-  useEffect(() => {
-    const allowed = ['compact', 'normal', 'relaxed'];
-    allowed.forEach(val => document.body.classList.remove(`line-spacing-${val}`));
-    document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
-  }, [settings.lineSpacing]);
+// ...existing code...
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { NotificationProvider } from './components/Notification';
 import { BookOpen, FileText, Folder, BarChart3, Settings as SettingsIcon } from 'lucide-react';
@@ -22,11 +17,20 @@ const TemplatesScreen = lazy(() => import('./components/TemplatesScreen/Template
 const GoalsScreen = lazy(() => import('./components/GoalsScreen/GoalsScreen'));
 
 function App() {
+
   const { t } = useLanguage();
   const [currentScreen, setCurrentScreen] = useState<Screen>('journal');
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [settings, setSettings] = useState(getSettings());
+
+
+  // Reaguj na zmianę odstępów między wersami (lineSpacing)
+  useEffect(() => {
+    const allowed = ['compact', 'normal', 'relaxed'];
+    allowed.forEach(val => document.body.classList.remove(`line-spacing-${val}`));
+    document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
+  }, [settings.lineSpacing]);
 
   // Swipe gesture state
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);

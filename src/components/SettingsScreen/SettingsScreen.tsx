@@ -68,22 +68,6 @@ const SettingsScreen = () => {
     }
   };
   // Automatyczne ładowanie wybranej czcionki Google Fonts
-  const handleSelectCustomFont = (font: string | undefined) => {
-    updateSetting('selectedCustomFont', font);
-    if (font) {
-      const fontName = font.replace(/ /g, '+');
-      if (!document.getElementById(`gf-${fontName}`)) {
-        const link = document.createElement('link');
-        link.id = `gf-${fontName}`;
-        link.rel = 'stylesheet';
-        link.href = `https://fonts.googleapis.com/css?family=${fontName}:400,700&display=swap`;
-        document.head.appendChild(link);
-      }
-      document.body.style.fontFamily = `'${font}', ${settings.fontFamily}`;
-    } else {
-      document.body.style.fontFamily = '';
-    }
-  };
 
   // nieużywane
 

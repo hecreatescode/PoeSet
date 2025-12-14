@@ -72,7 +72,7 @@ const TemplatesScreen: React.FC<TemplatesScreenProps> = ({ onBack, onUseTemplate
   };
   {/* Modal potwierdzenia usuwania szablonu */}
   {showDeleteModal && (
-    <Modal onClose={() => setShowDeleteModal(false)}>
+    <Modal isOpen={showDeleteModal} title="Potwierdź usunięcie" onClose={() => setShowDeleteModal(false)}>
       <div style={{ padding: '1.5rem', textAlign: 'center' }}>
         <h2 style={{ marginBottom: '1rem' }}>Potwierdź usunięcie</h2>
         <p>Czy na pewno chcesz usunąć ten szablon?</p>

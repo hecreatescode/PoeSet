@@ -75,15 +75,12 @@ export class ExportService {
   <div class="poem-title">${poem.title || 'Untitled'}</div>
   <div class="poem-date">${new Date(poem.date).toLocaleDateString()}</div>
   <div class="poem-content">${poem.content}</div>
-</div>
-
+</div>\n`;
     });
-
-    html += `</body>
-</html>`;
-
+    html += `</body>\n</html>`;
     return html;
   }
+
   static downloadFile(content: string, filename: string, type: string) {
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
@@ -118,7 +115,7 @@ export class ExportService {
       return [];
     } catch (error) {
       console.error('Import failed:', error);
-      return [];
+	  return [];
     }
   }
 }
