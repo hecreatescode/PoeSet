@@ -42,36 +42,41 @@ export class ExportService {
   }
 
   static exportToHTML(poems: Poem[]): string {
+    // Pobierz ustawienia użytkownika (czcionka)
+    let font = 'serif';
+    try {
+      const settings = localStorage.getItem('poeset_settings');
+      if (settings) {
+        const parsed = JSON.parse(settings);
+        if (parsed.selectedCustomFont) font = `'${parsed.selectedCustomFont}', ${parsed.fontFamily || 'serif'}`;
+        else if (parsed.fontFamily) font = parsed.fontFamily;
+      }
+    } catch {}
+
     let html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Poetry Collection</title>
+  <title>Wiersz</title>
   <style>
-    body { font-family: serif; max-width: 800px; margin: 0 auto; padding: 40px; line-height: 1.8; }
-    h1 { text-align: center; margin-bottom: 60px; }
+    body { font-family: ${font}; max-width: 800px; margin: 0 auto; padding: 40px; line-height: 1.8; background: #fff; color: #222; }
     .poem { page-break-inside: avoid; margin-bottom: 60px; }
-    .poem-title { font-size: 1.5em; margin-bottom: 10px; }
-    .poem-date { color: #666; font-size: 0.9em; margin-bottom: 20px; }
-    .poem-content { white-space: pre-wrap; margin-bottom: 20px; }
-    .poem-tags { font-size: 0.9em; color: #666; }
-    hr { margin: 40px 0; border: none; border-top: 1px solid #ddd; }
+    .poem-title { font-size: 2em; margin-bottom: 10px; font-weight: 600; text-align: center; }
+    .poem-date { color: #666; font-size: 1em; margin-bottom: 24px; text-align: center; }
+    .poem-content { white-space: pre-wrap; margin-bottom: 20px; font-size: 1.15em; text-align: center; }
   </style>
 </head>
 <body>
-  <h1>My Poetry Collection</h1>
 `;
 
     poems.forEach(poem => {
-      html += `  <div class="poem">
-    <div class="poem-title">${poem.title || 'Untitled'}</div>
-    <div class="poem-date">${new Date(poem.date).toLocaleDateString()}</div>
-    <div class="poem-content">${poem.content}</div>
-    ${poem.tags.length > 0 ? `<div class="poem-tags">Tags: ${poem.tags.join(', ')}</div>` : ''}
-  </div>
-  <hr>
-`;
+      html += `<div class="poem">
+  <div class="poem-title">${poem.title || 'Untitled'}</div>
+  <div class="poem-date">${new Date(poem.date).toLocaleDateString()}</div>
+  <div class="poem-content">${poem.content}</div>
+</div>
+
     });
 
     html += `</body>
@@ -79,7 +84,6 @@ export class ExportService {
 
     return html;
   }
-
   static downloadFile(content: string, filename: string, type: string) {
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);

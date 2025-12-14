@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { useNotification } from '../Notification';
+import Modal from '../Modal/Modal';
 import { Search, Filter, CheckSquare, Trash2, FolderPlus } from 'lucide-react';
 import type { Poem, MoodType } from '../../types';
-import { getPoems, deletePoem, addPoemToCollection, getCollections, getSettings } from '../../utils/storage';
+import { getPoems, deletePoem, addPoemToCollection, getCollections, getSettings, DEFAULT_MOODS } from '../../utils/storage';
 import { format } from 'date-fns';
 import { pl, enUS } from 'date-fns/locale';
 import PoemViewer from '../PoemViewer/PoemViewer';
@@ -26,7 +28,7 @@ const PoemsScreen: React.FC = () => {
   const [dateTo, setDateTo] = useState('');
   const [minLength, setMinLength] = useState('');
   const [maxLength, setMaxLength] = useState('');
-  const [selectedMood, setSelectedMood] = useState<MoodType | ''>('');
+  const [selectedMoods, setSelectedMoods] = useState<MoodType[]>([]);
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedPoemIds, setSelectedPoemIds] = useState<Set<string>>(new Set());
   const [showBulkCollectionDialog, setShowBulkCollectionDialog] = useState(false);
@@ -96,8 +98,16 @@ const PoemsScreen: React.FC = () => {
     }
 
     // Mood filter
-    if (selectedMood) {
-      filtered = filtered.filter(p => p.mood === selectedMood);
+    if (selectedMoods.length > 0) {
+      filtered = filtered.filter(p => {
+        // obsługa zarówno moods (tablica), jak i mood (string)
+        if (Array.isArray(p.moods) && p.moods.length > 0) {
+          return p.moods.some(m => selectedMoods.includes(m));
+        } else if (p.mood) {
+          return selectedMoods.includes(p.mood);
+        }
+        return false;
+      });
     }
 
     // Sort
@@ -153,18 +163,38 @@ const PoemsScreen: React.FC = () => {
     }
   };
 
+  const { notify } = useNotification();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
+
   const handleBulkDelete = () => {
     if (selectedPoemIds.size === 0) return;
-    
-    const count = selectedPoemIds.size;
-    if (confirm(`Czy na pewno chcesz usunąć ${count} ${count === 1 ? 'wiersz' : 'wierszy'}?`)) {
-      selectedPoemIds.forEach(id => deletePoem(id));
-      const allPoems = getPoems();
-      setPoems(allPoems);
-      setSelectedPoemIds(new Set());
-      setBulkMode(false);
-    }
+    setPendingDeleteCount(selectedPoemIds.size);
+    setShowDeleteModal(true);
   };
+
+  const confirmBulkDelete = () => {
+    selectedPoemIds.forEach(id => deletePoem(id));
+    const allPoems = getPoems();
+    setPoems(allPoems);
+    setSelectedPoemIds(new Set());
+    setBulkMode(false);
+    setShowDeleteModal(false);
+    notify('Wiersze zostały usunięte', 'success');
+  };
+  {/* Modal potwierdzenia usuwania */}
+  {showDeleteModal && (
+    <Modal onClose={() => setShowDeleteModal(false)}>
+      <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <h2 style={{ marginBottom: '1rem' }}>Potwierdź usunięcie</h2>
+        <p>Czy na pewno chcesz usunąć {pendingDeleteCount} {pendingDeleteCount === 1 ? 'wiersz' : 'wierszy'}?</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <button className="button button-secondary" onClick={() => setShowDeleteModal(false)}>Anuluj</button>
+          <button className="button button-primary" onClick={confirmBulkDelete}>Usuń</button>
+        </div>
+      </div>
+    </Modal>
+  )}
 
   const handleBulkAddToCollection = (collectionId: string) => {
     selectedPoemIds.forEach(poemId => {
@@ -381,22 +411,29 @@ const PoemsScreen: React.FC = () => {
               }}>
                 {t.poems.mood}
               </label>
-              <select
-                className="input"
-                value={selectedMood}
-                onChange={(e) => setSelectedMood(e.target.value as MoodType | '')}
-                style={{ fontSize: '0.875rem' }}
-              >
-                <option value="">{t.poems.allMoods}</option>
-                <option value="happy">{t.mood.happy}</option>
-                <option value="sad">{t.mood.sad}</option>
-                <option value="neutral">{t.mood.neutral}</option>
-                <option value="inspired">{t.mood.inspired}</option>
-                <option value="melancholic">{t.mood.melancholic}</option>
-                <option value="excited">{t.mood.excited}</option>
-                <option value="calm">{t.mood.calm}</option>
-                <option value="anxious">{t.mood.anxious}</option>
-              </select>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <button
+                  className={`button button-secondary${selectedMoods.length === 0 ? ' button-primary' : ''}`}
+                  style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}
+                  onClick={() => setSelectedMoods([])}
+                  type="button"
+                >
+                  {t.poems.allMoods}
+                </button>
+                {DEFAULT_MOODS.map(mood => (
+                  <label key={mood} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedMoods.includes(mood)}
+                      onChange={() => setSelectedMoods(selectedMoods.includes(mood)
+                        ? selectedMoods.filter(m => m !== mood)
+                        : [...selectedMoods, mood])}
+                      style={{ accentColor: 'var(--accent-color)' }}
+                    />
+                    {t.mood && t.mood[mood] ? t.mood[mood] : mood}
+                  </label>
+                ))}
+              </div>
             </div>
 
             {/* Clear button */}
@@ -408,7 +445,7 @@ const PoemsScreen: React.FC = () => {
                   setDateTo('');
                   setMinLength('');
                   setMaxLength('');
-                  setSelectedMood('');
+                  setSelectedMoods([]);
                 }}
                 style={{ fontSize: '0.875rem', width: '100%' }}
               >

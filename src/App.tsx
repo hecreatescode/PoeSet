@@ -1,4 +1,11 @@
+  // Reaguj na zmianę odstępów między wersami (lineSpacing)
+  useEffect(() => {
+    const allowed = ['compact', 'normal', 'relaxed'];
+    allowed.forEach(val => document.body.classList.remove(`line-spacing-${val}`));
+    document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
+  }, [settings.lineSpacing]);
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { NotificationProvider } from './components/Notification';
 import { BookOpen, FileText, Folder, BarChart3, Settings as SettingsIcon } from 'lucide-react';
 import './App.css';
 import type { Screen } from './types';
@@ -70,9 +77,13 @@ function App() {
     document.body.classList.add(`layout-width-${s.layoutWidth}`);
     if (s.highContrast) {
       document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
     }
     if (s.reducedMotion) {
       document.body.classList.add('reduced-motion');
+    } else {
+      document.body.classList.remove('reduced-motion');
     }
     setCurrentScreen(s.startView);
 
@@ -87,6 +98,42 @@ function App() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
+
+  // Reaguj na zmianę highContrast
+  useEffect(() => {
+    if (settings.highContrast) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+  }, [settings.highContrast]);
+
+  // Reaguj na zmianę reducedMotion
+  useEffect(() => {
+    if (settings.reducedMotion) {
+      document.body.classList.add('reduced-motion');
+    } else {
+      document.body.classList.remove('reduced-motion');
+    }
+  }, [settings.reducedMotion]);
+
+  // Reaguj na zmianę enableMarkdown (np. body class, jeśli chcesz stylować)
+  useEffect(() => {
+    if (settings.enableMarkdown) {
+      document.body.classList.add('markdown-enabled');
+    } else {
+      document.body.classList.remove('markdown-enabled');
+    }
+  }, [settings.enableMarkdown]);
+
+  // Reaguj na zmianę enableSwipeGestures (np. body class, jeśli chcesz stylować)
+  useEffect(() => {
+    if (settings.enableSwipeGestures) {
+      document.body.classList.add('swipe-enabled');
+    } else {
+      document.body.classList.remove('swipe-enabled');
+    }
+  }, [settings.enableSwipeGestures]);
 
   // Listen for theme changes in settings
   useEffect(() => {
@@ -237,6 +284,7 @@ function App() {
   };
 
   return (
+    <NotificationProvider>
     <div className="app">
       <header style={{
         position: 'fixed',
@@ -253,7 +301,7 @@ function App() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img
-            src="/src/assets/logo/naglowek.svg"
+            src="/naglowek.svg"
             alt="PoeSet Header"
             style={{
               width: '240px',
@@ -350,6 +398,7 @@ function App() {
         </div>
       )}
     </div>
+    </NotificationProvider>
   );
 }
 

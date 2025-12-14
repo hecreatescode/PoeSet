@@ -13,13 +13,14 @@ function handleExport(settings: any) {
   downloadBackup(settings);
 }
 import { useState, useContext } from 'react';
+import { useNotification } from '../Notification';
 import { Type, Languages, AlignLeft, Maximize, FileText, Layout, Eye, HardDrive, Save, Download, Upload, Palette } from 'lucide-react';
 import { LanguageContext } from '../../i18n/languageContextInternal';
 import useSettings from '../../hooks/useSettings';
 // import { DEFAULT_MOODS } from '../../types';
 
 
-function handleImport(updateSetting: (key: string, value: any) => void) {
+function handleImport(updateSetting: (key: string, value: any) => void, notify: (msg: string, type?: any) => void) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
@@ -33,9 +34,9 @@ function handleImport(updateSetting: (key: string, value: any) => void) {
       Object.keys(imported).forEach(key => {
         updateSetting(key, imported[key]);
       });
-      alert('Import zakończony sukcesem!');
+      notify('Import zakończony sukcesem!', 'success');
     } catch {
-      alert('Błąd importu pliku.');
+      notify('Błąd importu pliku.', 'error');
     }
   };
   input.click();
@@ -48,12 +49,39 @@ const SettingsScreen = () => {
   if (!languageContext) throw new Error('LanguageContext not found');
   const { t, language, setLanguage } = languageContext;
   const { settings, updateSetting } = useSettings();
+  const { notify } = useNotification();
   const [newFont, setNewFont] = useState('');
 
   const handleAddCustomFont = (font: string) => {
     if (!settings.customFonts?.includes(font)) {
       updateSetting('customFonts', [...(settings.customFonts || []), font]);
       setNewFont('');
+      // Dodaj link do Google Fonts
+      const fontName = font.replace(/ /g, '+');
+      if (!document.getElementById(`gf-${fontName}`)) {
+        const link = document.createElement('link');
+        link.id = `gf-${fontName}`;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css?family=${fontName}:400,700&display=swap`;
+        document.head.appendChild(link);
+      }
+    }
+  };
+  // Automatyczne ładowanie wybranej czcionki Google Fonts
+  const handleSelectCustomFont = (font: string | undefined) => {
+    updateSetting('selectedCustomFont', font);
+    if (font) {
+      const fontName = font.replace(/ /g, '+');
+      if (!document.getElementById(`gf-${fontName}`)) {
+        const link = document.createElement('link');
+        link.id = `gf-${fontName}`;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css?family=${fontName}:400,700&display=swap`;
+        document.head.appendChild(link);
+      }
+      document.body.style.fontFamily = `'${font}', ${settings.fontFamily}`;
+    } else {
+      document.body.style.fontFamily = '';
     }
   };
 
@@ -75,11 +103,12 @@ const SettingsScreen = () => {
         <div className="card" style={{ cursor: 'default', marginBottom: 'var(--spacing-lg)' }}>
           <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <Type size={20} />
-            {t.settings.customFonts || 'Niestandardowe czcionki (Google Fonts)'}
+            {t.settings.customFonts || 'Niestandardowe czcionki'}
           </h3>
           <form onSubmit={e => { e.preventDefault(); if (newFont.trim()) { handleAddCustomFont(newFont.trim()); } }} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
             <input
               type="text"
+              className="custom-font-input"
               placeholder={t.settings.addFontPlaceholder || 'Nazwa czcionki z Google Fonts'}
               value={newFont}
               onChange={e => setNewFont(e.target.value)}
@@ -93,7 +122,7 @@ const SettingsScreen = () => {
             {(settings.customFonts || []).length === 0 && (
               <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{t.settings.noCustomFonts || 'Brak dodanych czcionek.'}</span>
             )}
-        </div>
+          </div>
 
         {/* Font family */}
         <div className="card" style={{ cursor: 'default' }}>
@@ -453,7 +482,7 @@ const SettingsScreen = () => {
             </button>
             <button 
               className="button button-secondary" 
-              onClick={() => handleImport(updateSetting)}
+              onClick={() => handleImport(updateSetting, notify)}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 'var(--spacing-md)', gap: '0.5rem' }}
             >
               <Upload size={24} />

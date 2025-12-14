@@ -85,7 +85,7 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
         >
           <X size={20} />
         </button>
-        
+        <h2 style={{ fontWeight: 600, fontSize: '1.25rem', margin: 0 }}>Edytor kolekcji</h2>
         <button 
           className="button button-primary"
           onClick={handleSave}
@@ -96,110 +96,157 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
         </button>
       </div>
 
-      {/* Form */}
       <div style={{
         flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '2rem',
         padding: 'var(--spacing-xl)',
         overflow: 'auto',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
       }}>
-        {/* Cover upload */}
-        <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-          <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
-            Okładka zbioru
-          </label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* Dane kolekcji */}
+        <div style={{
+          minWidth: 320,
+          maxWidth: 400,
+          background: 'var(--bg-primary)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+        }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
+              Okładka zbioru
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleCoverChange}
+              />
+              <button
+                type="button"
+                className="button button-secondary"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {coverImage ? 'Zmień okładkę' : 'Dodaj okładkę'}
+              </button>
+              {coverImage && (
+                <img src={coverImage} alt="Okładka" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--light-border)' }} />
+              )}
+            </div>
+          </div>
+          <div>
             <input
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              ref={fileInputRef}
-              onChange={handleCoverChange}
+              type="text"
+              className="input"
+              placeholder="Nazwa zbioru"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={{ fontSize: '1.5rem', fontWeight: 500, marginBottom: 'var(--spacing-md)' }}
             />
-            <button
-              type="button"
-              className="button button-secondary"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {coverImage ? 'Zmień okładkę' : 'Dodaj okładkę'}
-            </button>
-            {coverImage && (
-              <img src={coverImage} alt="Okładka" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--light-border)' }} />
+            <textarea
+              className="input"
+              placeholder="Opis (opcjonalny)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={{ minHeight: '100px' }}
+            />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
+              Kolor zbioru
+            </label>
+            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+              {COLORS.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: 'var(--radius-md)',
+                    background: c,
+                    border: color === c ? '3px solid var(--light-accent)' : '1px solid var(--light-border)',
+                    cursor: 'pointer',
+                    transition: 'all var(--transition-fast)',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Wybór wierszy */}
+        <div style={{
+          flex: 1,
+          minWidth: 320,
+          maxWidth: 600,
+          background: 'var(--bg-primary)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <label style={{ fontWeight: 500, fontSize: '1.1rem' }}>
+              Wybierz wiersze ({selectedPoemIds.length})
+            </label>
+            {allPoems.length > 0 && (
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => {
+                  if (selectedPoemIds.length === allPoems.length) {
+                    setSelectedPoemIds([]);
+                  } else {
+                    setSelectedPoemIds(allPoems.map(p => p.id));
+                  }
+                }}
+                style={{ fontSize: '0.9rem', padding: '0.25rem 1rem' }}
+              >
+                {selectedPoemIds.length === allPoems.length ? 'Odznacz wszystkie' : 'Zaznacz wszystkie'}
+              </button>
             )}
           </div>
-        </div>
-        <input
-          type="text"
-          className="input"
-          placeholder="Nazwa zbioru"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ fontSize: '1.5rem', fontWeight: 500, marginBottom: 'var(--spacing-lg)' }}
-        />
-
-        <textarea
-          className="input"
-          placeholder="Opis (opcjonalny)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          style={{ minHeight: '100px', marginBottom: 'var(--spacing-lg)' }}
-        />
-
-        {/* Color picker */}
-        <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-          <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
-            Kolor zbioru
-          </label>
-          <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
-            {COLORS.map(c => (
-              <button
-                key={c}
-                onClick={() => setColor(c)}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: 'var(--radius-md)',
-                  background: c,
-                  border: color === c ? '3px solid var(--light-accent)' : '1px solid var(--light-border)',
-                  cursor: 'pointer',
-                  transition: 'all var(--transition-fast)',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Poem selection */}
-        <div>
-          <label style={{ display: 'block', marginBottom: 'var(--spacing-md)', fontWeight: 500 }}>
-            Wybierz wiersze ({selectedPoemIds.length})
-          </label>
           {allPoems.length === 0 ? (
             <p className="text-secondary">Nie masz jeszcze żadnych wierszy.</p>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {allPoems.map(poem => (
                 <label 
                   key={poem.id}
                   style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--spacing-md)',
-                    padding: 'var(--spacing-md)',
+                    alignItems: 'flex-start',
+                    gap: '1rem',
+                    padding: '1rem',
                     border: '1px solid var(--light-border)',
                     borderRadius: 'var(--radius-md)',
                     cursor: 'pointer',
+                    background: selectedPoemIds.includes(poem.id) ? 'var(--light-accent)' : 'transparent',
+                    boxShadow: selectedPoemIds.includes(poem.id) ? '0 2px 8px rgba(0,0,0,0.04)' : 'none',
+                    transition: 'background 0.2s, box-shadow 0.2s',
                   }}
                 >
                   <input
                     type="checkbox"
                     checked={selectedPoemIds.includes(poem.id)}
                     onChange={() => togglePoem(poem.id)}
-                    style={{ width: '18px', height: '18px' }}
+                    style={{ width: '18px', height: '18px', marginTop: 2 }}
                   />
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 500 }}>{poem.title || 'Bez tytułu'}</p>
-                    <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-                      {poem.content.substring(0, 50)}...
+                    <p style={{ fontWeight: 500, marginBottom: 4 }}>{poem.title || 'Bez tytułu'}</p>
+                    <p className="text-secondary" style={{ fontSize: '0.9rem', margin: 0, opacity: 0.8 }}>
+                      {poem.content.substring(0, 70)}{poem.content.length > 70 ? '...' : ''}
                     </p>
                   </div>
                 </label>

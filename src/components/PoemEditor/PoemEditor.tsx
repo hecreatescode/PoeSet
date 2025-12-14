@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useNotification } from '../Notification';
 import { X, Save, Tag, Calendar, Eye, EyeOff, Smile, Lock, Mic, MicOff, Bold, Italic, Underline, Plus } from 'lucide-react';
 import type { Poem, MoodType } from '../../types';
 import { DEFAULT_MOODS } from '../../types';
@@ -61,7 +62,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const [tags, setTags] = useState<string[]>(poem?.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [date, setDate] = useState(poem?.date.split('T')[0] || initialDate || new Date().toISOString().split('T')[0]);
-  const [mood, setMood] = useState<MoodType | undefined>(poem?.mood);
+  const [moods, setMoods] = useState<MoodType[]>(poem?.moods || (poem?.mood ? [poem.mood] : []));
   const [showTagInput, setShowTagInput] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
@@ -78,6 +79,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const [settings, setSettingsState] = useState(getSettings());
   const { t } = useLanguage();
+  const { notify } = useNotification();
   const recognitionSupported = useMemo(() => 
     'webkitSpeechRecognition' in window || 'SpeechRecognition' in window,
     []
@@ -97,7 +99,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
     const newSettings = { ...settings, customMoods: newCustomMoods };
     saveSettings(newSettings);
     setSettingsState(newSettings);
-    setMood(mood);
+    setMoods(prev => [...prev, mood]);
     setNewMoodInput('');
     setShowAddMoodInput(false);
   };
@@ -130,66 +132,90 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
 
   // Initialize Web Speech API
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window.webkitSpeechRecognition || window.SpeechRecognition) as SpeechRecognitionConstructor;
-      const recognition = new SpeechRecognition();
-      
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = settings.language === 'pl' ? 'pl-PL' : 'en-US';
-      
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
-          }
+    if (!recognitionSupported) return;
+    const SpeechRecognition = (window.webkitSpeechRecognition || window.SpeechRecognition) as SpeechRecognitionConstructor;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = settings.language === 'pl' ? 'pl-PL' : 'en-US';
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
         }
-        
-        if (finalTranscript) {
-          setContent(prev => prev + finalTranscript);
-        }
-      };
-      
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error:', event.error);
-        setIsRecording(false);
-      };
-      
-      recognition.onend = () => {
-        if (isRecording) {
+      }
+      if (finalTranscript) {
+        setContent(prev => prev + finalTranscript);
+      }
+    };
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      setIsRecording(false);
+      if (event.error === 'not-allowed' || event.error === 'denied') {
+        notify('Brak uprawnień do mikrofonu lub mikrofon zablokowany.', 'error');
+      } else if (event.error === 'no-speech') {
+        notify('Nie wykryto mowy. Spróbuj ponownie.', 'warning');
+      } else {
+        notify('Błąd rozpoznawania mowy: ' + event.error, 'error');
+      }
+    };
+
+    recognition.onend = () => {
+      if (isRecording) {
+        try {
           recognition.start(); // Restart if still recording
+        } catch (e) {
+          setIsRecording(false);
         }
-      };
-      
-      recognitionRef.current = recognition;
-    }
-    
+      }
+    };
+
+    recognitionRef.current = recognition;
+
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
     };
-  }, [settings.language, isRecording]);
+    // eslint-disable-next-line
+  }, [settings.language]);
+
+  // Zatrzymaj nagrywanie przy zamknięciu edytora
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        setIsRecording(false);
+      }
+    };
+  }, []);
 
   const toggleRecording = useCallback(() => {
+    if (!recognitionSupported) {
+      notify('Twoja przeglądarka nie obsługuje rozpoznawania mowy.', 'warning');
+      return;
+    }
     if (!recognitionRef.current) return;
-    
     if (isRecording) {
       recognitionRef.current.stop();
       setIsRecording(false);
     } else {
-      recognitionRef.current.start();
-      setIsRecording(true);
+      try {
+        recognitionRef.current.start();
+        setIsRecording(true);
+      } catch (e) {
+        setIsRecording(false);
+        notify('Nie można uruchomić rozpoznawania mowy.', 'error');
+      }
     }
-  }, [isRecording]);
+  }, [isRecording, recognitionSupported, notify]);
 
   // Auto-save funkcja co 3 sekundy
   useEffect(() => {
     if (!content.trim()) return;
-
     if (autoSaveTimerRef.current) {
       clearTimeout(autoSaveTimerRef.current);
     }
@@ -201,7 +227,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
         content: content.trim(),
         date: `${date}T${new Date().toISOString().split('T')[1]}`,
         tags,
-        mood,
+        moods,
         collectionIds: poem?.collectionIds || [],
         createdAt: poem?.createdAt || now,
         updatedAt: now,
@@ -210,13 +236,12 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       setAutoSaved(true);
       setTimeout(() => setAutoSaved(false), 2000);
     }, 3000);
-
     return () => {
       if (autoSaveTimerRef.current) {
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [title, content, tags, mood, date, poem]);
+  }, [title, content, tags, moods, date, poem]);
 
   const handleSave = useCallback(() => {
     if (!content.trim()) return;
@@ -227,15 +252,14 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       content: content.trim(),
       date: `${date}T${new Date().toISOString().split('T')[1]}`,
       tags,
-      mood,
+      moods,
       collectionIds: poem?.collectionIds || [],
       createdAt: poem?.createdAt || now,
       updatedAt: now,
     };
-
     savePoem(poemData);
     onSave(poemData);
-  }, [content, title, date, tags, mood, poem, onSave]);
+  }, [content, title, date, tags, moods, poem, onSave]);
 
   const handleAddTag = (tagToAdd?: string) => {
     const tag = (tagToAdd || tagInput).trim();
@@ -282,6 +306,8 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
     }, 0);
   };
 
+  // ...existing code...
+
   const handleEncrypt = async () => {
     if (!encryptionPassword.trim()) return;
     
@@ -292,7 +318,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       setShowEncryptDialog(false);
       setEncryptionPassword('');
     } catch {
-      alert('Błąd szyfrowania');
+      notify('Błąd szyfrowania', 'error');
     }
   };
 
@@ -306,7 +332,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
       setShowEncryptDialog(false);
       setEncryptionPassword('');
     } catch {
-      alert('Nieправидłowe hasło');
+      notify('Nieprawidłowe hasło', 'error');
     }
   };
 
@@ -384,10 +410,33 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
             <button 
               className={`button ${isRecording ? 'button-primary' : 'button-secondary'}`}
               onClick={toggleRecording}
-              style={{ padding: '0.5rem' }}
+              style={{ padding: '0.5rem', position: 'relative' }}
               title={isRecording ? 'Zatrzymaj dyktowanie' : 'Rozpocznij dyktowanie'}
             >
               {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+              {isRecording && (
+                <span style={{
+                  position: 'absolute',
+                  top: 2,
+                  right: 2,
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: 'red',
+                  animation: 'blink 1s infinite',
+                  boxShadow: '0 0 6px 2px rgba(255,0,0,0.3)'
+                }} />
+              )}
+            </button>
+          )}
+          {!recognitionSupported && (
+            <button 
+              className="button button-secondary"
+              style={{ padding: '0.5rem', opacity: 0.5, cursor: 'not-allowed' }}
+              title="Twoja przeglądarka nie obsługuje rozpoznawania mowy"
+              disabled
+            >
+              <MicOff size={20} />
             </button>
           )}
           <button 
@@ -542,8 +591,8 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
             gap: '0.5rem' 
           }}>
             <button
-              className={`button ${!mood ? 'button-primary' : 'button-secondary'}`}
-              onClick={() => setMood(undefined)}
+              className={`button ${moods.length === 0 ? 'button-primary' : 'button-secondary'}`}
+              onClick={() => setMoods([])}
               style={{ fontSize: '0.875rem' }}
             >
               {t.poems.allMoods}
@@ -551,8 +600,8 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
             {DEFAULT_MOODS.map((moodType: typeof DEFAULT_MOODS[number]) => (
               <button
                 key={moodType}
-                className={`button ${mood === moodType ? 'button-primary' : 'button-secondary'}`}
-                onClick={() => setMood(moodType)}
+                className={`button ${moods.includes(moodType) ? 'button-primary' : 'button-secondary'}`}
+                onClick={() => setMoods(prev => prev.includes(moodType) ? prev.filter(m => m !== moodType) : [...prev, moodType])}
                 style={{ fontSize: '0.875rem' }}
               >
                 {t.mood && t.mood[moodType] ? t.mood[moodType] : moodType}
@@ -561,15 +610,14 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
             {(settings.customMoods || []).map(customMood => (
               <button
                 key={customMood}
-                className={`button ${mood === customMood ? 'button-primary' : 'button-secondary'}`}
-                onClick={() => setMood(customMood)}
+                className={`button ${moods.includes(customMood) ? 'button-primary' : 'button-secondary'}`}
+                onClick={() => setMoods(prev => prev.includes(customMood) ? prev.filter(m => m !== customMood) : [...prev, customMood])}
                 style={{ fontSize: '0.875rem' }}
               >
                 {customMood}
               </button>
             ))}
           </div>
-          
           {/* Add custom mood section */}
           <div style={{ marginTop: 'var(--spacing-md)', borderTop: '1px solid var(--light-border)', paddingTop: 'var(--spacing-md)' }}>
             {!showAddMoodInput ? (
@@ -772,6 +820,7 @@ const PoemEditor: React.FC<PoemEditorProps> = ({ poem, onSave, onClose, initialD
               fontSize: '1.125rem',
               lineHeight: 1.8,
               minHeight: '400px',
+              background: isRecording ? 'rgba(255,0,0,0.04)' : undefined
             }}
             autoFocus
           />

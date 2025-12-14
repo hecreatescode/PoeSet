@@ -20,7 +20,7 @@ export interface Poem {
   createdAt: string;
   updatedAt: string;
   versions?: PoemVersion[];
-  mood?: MoodType;
+  moods?: MoodType[]; // Multi-mood support
   isEncrypted?: boolean;
   isMarkdown?: boolean;
   template?: string;

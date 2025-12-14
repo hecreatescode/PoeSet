@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Edit, Trash2, Share2, History, Copy, Image } from 'lucide-react';
+import { useNotification } from '../Notification';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import type { Poem, Theme } from '../../types';
@@ -54,12 +55,15 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
       return;
     }
 
-    // Calculate canvas size based on content
+    // Ustawienia rozdzielczości i DPI
+    const targetWidth = 1080;
+    const targetHeight = 1350;
+    const scale = 3; // dla "300 DPI" na ekranie (przy 1080px ~ 4x, ale 3x daje kompromis)
     const padding = 80;
-    const maxWidth = 800;
-    const lineHeight = 32;
-    const titleHeight = poem.title ? 60 : 0;
-    const dateHeight = 40;
+    const maxWidth = targetWidth - padding * 2;
+    const lineHeight = 40;
+    const titleHeight = poem.title ? 80 : 0;
+    const dateHeight = 50;
     
     // Word wrap function
     const wrapText = (text: string, maxW: number): string[] => {
@@ -102,26 +106,33 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
     const contentHeight = contentLines.length * lineHeight;
     const totalHeight = padding * 2 + titleHeight + contentHeight + dateHeight + 40;
 
-    canvas.width = maxWidth;
-    canvas.height = totalHeight;
+    // Ustaw docelową rozdzielczość i skalowanie
+    const contentHeight = contentLines.length * lineHeight;
+    const totalHeight = padding * 2 + titleHeight + contentHeight + dateHeight + 40;
+    // Canvas zawsze 1080x1350 (lub wyższy, jeśli content dłuższy)
+    canvas.width = targetWidth * scale;
+    canvas.height = Math.max(targetHeight * scale, totalHeight * scale);
+    canvas.style.width = `${targetWidth}px`;
+    canvas.style.height = `${Math.max(targetHeight, totalHeight)}px`;
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
 
     // Draw background
     ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, targetWidth, Math.max(targetHeight, totalHeight));
 
     // Draw decorative border
     ctx.strokeStyle = colors.accent;
     ctx.lineWidth = 2;
-    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+    ctx.strokeRect(20, 20, targetWidth - 40, Math.max(targetHeight, totalHeight) - 40);
 
     let yPos = padding;
 
     // Draw title
     if (poem.title) {
       ctx.fillStyle = colors.text;
-      ctx.font = 'bold 28px Georgia, serif';
+      ctx.font = 'bold 36px Georgia, serif';
       ctx.textAlign = 'center';
-      ctx.fillText(poem.title, canvas.width / 2, yPos + 30);
+      ctx.fillText(poem.title, targetWidth / 2, yPos + 40);
       yPos += titleHeight;
     }
 
@@ -129,22 +140,21 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
     ctx.fillStyle = colors.text;
     ctx.font = '18px Georgia, serif';
     ctx.textAlign = 'center';
-    
     for (const line of contentLines) {
-      ctx.fillText(line, canvas.width / 2, yPos + lineHeight);
+      ctx.fillText(line, targetWidth / 2, yPos + lineHeight);
       yPos += lineHeight;
     }
 
     // Draw date
     yPos += 20;
     ctx.fillStyle = colors.secondary;
-    ctx.font = '14px Georgia, serif';
-    ctx.fillText(format(new Date(poem.date), 'd MMMM yyyy', { locale: pl }), canvas.width / 2, yPos);
+    ctx.font = '16px Georgia, serif';
+    ctx.fillText(format(new Date(poem.date), 'd MMMM yyyy', { locale: pl }), targetWidth / 2, yPos);
 
     // Draw watermark
     ctx.fillStyle = colors.accent;
-    ctx.font = '12px Georgia, serif';
-    ctx.fillText('PoeSet', canvas.width / 2, canvas.height - 30);
+    ctx.font = '14px Georgia, serif';
+    ctx.fillText('PoeSet', targetWidth / 2, Math.max(targetHeight, totalHeight) - 30);
 
     // Convert to blob and download/share
     canvas.toBlob(async (blob) => {
@@ -198,6 +208,8 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
     onClose();
   };
 
+  const { notify } = useNotification();
+
   const handleShare = () => {
     const text = `${poem.title}\n\n${poem.content}\n\n${format(new Date(poem.date), 'd MMMM yyyy', { locale: pl })}`;
     
@@ -208,7 +220,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
       });
     } else {
       navigator.clipboard.writeText(text);
-      alert('Wiersz skopiowany do schowka!');
+      notify('Wiersz skopiowany do schowka!', 'success');
     }
   };
 
@@ -231,16 +243,19 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
     
     savePoem(duplicatedPoem);
     onUpdate();
-    alert('Wiersz zduplikowany!');
+    notify('Wiersz zduplikowany!', 'success');
   };
 
+  // Edytor wiersza renderowany inline zamiast fullscreen/modal
   if (isEditing) {
     return (
-      <PoemEditor
-        poem={poem}
-        onSave={handlePoemUpdated}
-        onClose={() => setIsEditing(false)}
-      />
+      <div style={{ maxWidth: 700, margin: '0 auto', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 16px rgba(0,0,0,0.10)', padding: 'var(--spacing-lg)', marginTop: 'var(--spacing-lg)' }}>
+        <PoemEditor
+          poem={poem}
+          onSave={handlePoemUpdated}
+          onClose={() => setIsEditing(false)}
+        />
+      </div>
     );
   }
 
@@ -341,23 +356,22 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
       }}>
         {poem.title && (
           <>
-            <h1 className="font-serif" style={{ 
+            <h1 className="font-serif poem-title-marked" style={{ 
               fontSize: '2rem', 
-              marginBottom: '0.25rem',
+              marginBottom: 'var(--spacing-lg)',
               fontWeight: 400,
               textAlign: 'center',
               position: 'relative',
               zIndex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1.2rem',
             }}>
-              {poem.title}
+              <span className="poem-title-marker">&gt;&lt;</span>
+              <span>{poem.title}</span>
+              <span className="poem-title-marker">&gt;&lt;</span>
             </h1>
-            {/* Ozdobnik SVG pod tytułem */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--spacing-lg)' }}>
-              <svg width="80" height="18" viewBox="0 0 80 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 15 Q40 2 78 15" stroke="var(--primary, #2563eb)" strokeWidth="2" fill="none"/>
-                <path d="M70 15 Q75 10 78 15 Q75 20 70 15 Z" fill="var(--primary, #2563eb)" opacity="0.5"/>
-              </svg>
-            </div>
           </>
         )}
         
@@ -391,6 +405,31 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
             {format(new Date(poem.date), 'd MMMM yyyy', { locale: pl })}
           </p>
 
+          {(poem.moods && poem.moods.length > 0 || poem.mood) && (
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              marginBottom: poem.tags.length > 0 ? '0.5rem' : 0
+            }}>
+              {(poem.moods && poem.moods.length > 0 ? poem.moods : poem.mood ? [poem.mood] : []).map(mood => (
+                <span
+                  key={mood}
+                  style={{
+                    fontSize: '0.75rem',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: 'var(--radius-full)',
+                    background: 'var(--accent-color)',
+                    color: 'white',
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {t.mood && t.mood[mood] ? t.mood[mood] : mood}
+                </span>
+              ))}
+            </div>
+          )}
           {poem.tags.length > 0 && (
             <div style={{ 
               display: 'flex', 

@@ -96,57 +96,7 @@ const StatisticsScreen: React.FC = () => {
             </div>
           </div>
         )}
-        {/* Detailed stats */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-          {/* Most productive day */}
-          <div className="card" style={{ cursor: 'default' }}>
-            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-              <Calendar size={20} />
-              {t.statistics.mostProductiveDay}
-            </h3>
-            <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-              {stats.mostProductiveDay === 'Brak danych' ? t.statistics.noData : stats.mostProductiveDay}
-            </p>
-          </div>
-
-          {/* Most productive hour */}
-          <div className="card" style={{ cursor: 'default' }}>
-            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-              <Clock size={20} />
-              {t.statistics.mostProductiveHour}
-            </h3>
-            <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-              {stats.mostProductiveHour}:00 - {stats.mostProductiveHour + 1}:00
-            </p>
-          </div>
-
-          {/* Average length */}
-          <div className="card" style={{ cursor: 'default' }}>
-            <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-              <BarChart3 size={20} />
-              {t.statistics.averageLength}
-            </h3>
-            <p style={{ fontSize: '1.5rem', fontWeight: 300 }}>
-              {stats.averageLength} {t.statistics.characters}
-            </p>
-          </div>
-
-          {/* Most used tags */}
-          {stats.mostUsedTags.length > 0 && (
-            <div className="card" style={{ cursor: 'default' }}>
-              <h3 style={{ marginBottom: 'var(--spacing-md)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                <Tag size={20} />
-                {t.statistics.popularTags}
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-                {stats.mostUsedTags.map((item, index) => (
-                  <div key={item.tag} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                    <span style={{ 
-                      fontSize: '1.5rem', 
-                      fontWeight: 300,
-                      minWidth: '2rem',
-                      color: 'var(--light-text-secondary)',
-                    }}>
+        {/* ...usunięto duplikat najczęściej używane słowa... */}
                       {index + 1}.
                     </span>
                     <div style={{ flex: 1 }}>

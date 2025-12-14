@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNotification } from '../Notification';
+import Modal from '../Modal/Modal';
 import { X, Plus, Trash2, FileText } from 'lucide-react';
 import type { PoemTemplate } from '../../types';
 import { getTemplates, saveTemplate, deleteTemplate } from '../../utils/storage';
@@ -50,12 +52,37 @@ const TemplatesScreen: React.FC<TemplatesScreenProps> = ({ onBack, onUseTemplate
     setShowForm(true);
   };
 
+  const { notify } = useNotification();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
   const handleDelete = (id: string) => {
-    if (confirm('Czy na pewno chcesz usunąć ten szablon?')) {
-      deleteTemplate(id);
-      loadTemplates();
-    }
+    setPendingDeleteId(id);
+    setShowDeleteModal(true);
   };
+
+  const confirmDelete = () => {
+    if (pendingDeleteId) {
+      deleteTemplate(pendingDeleteId);
+      loadTemplates();
+      notify('Szablon został usunięty', 'success');
+    }
+    setShowDeleteModal(false);
+    setPendingDeleteId(null);
+  };
+  {/* Modal potwierdzenia usuwania szablonu */}
+  {showDeleteModal && (
+    <Modal onClose={() => setShowDeleteModal(false)}>
+      <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+        <h2 style={{ marginBottom: '1rem' }}>Potwierdź usunięcie</h2>
+        <p>Czy na pewno chcesz usunąć ten szablon?</p>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <button className="button button-secondary" onClick={() => setShowDeleteModal(false)}>Anuluj</button>
+          <button className="button button-primary" onClick={confirmDelete}>Usuń</button>
+        </div>
+      </div>
+    </Modal>
+  )}
 
   const resetForm = () => {
     setFormData({ name: '', structure: '', example: '' });
