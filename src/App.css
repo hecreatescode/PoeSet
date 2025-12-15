@@ -74,7 +74,7 @@ body[data-theme="light"] {
   --text-primary: #232323;
   --text-secondary: #6a6a6a;
   --border-color: #e0e0e0;
-  --accent-color: #1a73e8;
+  --accent-color: #2c2c2c;
 }
 body[data-theme="dark"] {
   background: #181c20;

@@ -4,7 +4,7 @@ import { NotificationProvider } from './components/Notification';
 import { BookOpen, FileText, Folder, BarChart3, Settings as SettingsIcon } from 'lucide-react';
 import './App.css';
 import type { Screen } from './types';
-import { getSettings } from './utils/storage';
+import { SettingsProvider, useSettingsContext } from './context/SettingsContext';
 import { useLanguage } from './i18n/useLanguage';
 
 // Lazy loading komponentów dla lepszej wydajności
@@ -16,13 +16,12 @@ const SettingsScreen = lazy(() => import('./components/SettingsScreen/SettingsSc
 const TemplatesScreen = lazy(() => import('./components/TemplatesScreen/TemplatesScreen'));
 const GoalsScreen = lazy(() => import('./components/GoalsScreen/GoalsScreen'));
 
-function App() {
-
+function AppContent() {
   const { t } = useLanguage();
   const [currentScreen, setCurrentScreen] = useState<Screen>('journal');
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [settings, setSettings] = useState(getSettings());
+  const { settings } = useSettingsContext();
 
 
   // Reaguj na zmianę odstępów między wersami (lineSpacing)
@@ -71,37 +70,36 @@ function App() {
   );
 
   useEffect(() => {
-    // Apply initial settings
-    const s = getSettings();
-    setSettings(s);
-    document.body.setAttribute('data-theme', s.theme);
-    document.body.classList.add(`font-${s.fontFamily}`);
-    document.body.classList.add(`font-size-${s.fontSize || 'medium'}`);
-    document.body.classList.add(`line-spacing-${s.lineSpacing}`);
-    document.body.classList.add(`layout-width-${s.layoutWidth}`);
-    if (s.highContrast) {
+    // Apply settings to body
+    document.body.setAttribute('data-theme', settings.theme);
+    document.body.classList.forEach(cls => {
+      if (cls.startsWith('font-') || cls.startsWith('font-size-') || cls.startsWith('line-spacing-') || cls.startsWith('layout-width-')) {
+        document.body.classList.remove(cls);
+      }
+    });
+    document.body.classList.add(`font-${settings.fontFamily}`);
+    document.body.classList.add(`font-size-${settings.fontSize || 'medium'}`);
+    document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
+    document.body.classList.add(`layout-width-${settings.layoutWidth}`);
+    if (settings.highContrast) {
       document.body.classList.add('high-contrast');
     } else {
       document.body.classList.remove('high-contrast');
     }
-    if (s.reducedMotion) {
+    if (settings.reducedMotion) {
       document.body.classList.add('reduced-motion');
     } else {
       document.body.classList.remove('reduced-motion');
     }
-    setCurrentScreen(s.startView);
-
-    // PWA install prompt
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallPrompt(true);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
+    // Ustaw czcionkę globalnie jeśli wybrano customową
+    if (settings.selectedCustomFont) {
+      document.body.style.fontFamily = `'${settings.selectedCustomFont}', sans-serif`;
+    } else {
+      document.body.style.fontFamily = '';
+    }
+    // Ustaw startowy ekran tylko przy pierwszym renderze
+    // setCurrentScreen(settings.startView); // jeśli chcesz resetować ekran przy każdej zmianie ustawień, odkomentuj
+  }, [settings]);
 
   // Reaguj na zmianę highContrast
   useEffect(() => {
@@ -139,27 +137,10 @@ function App() {
     }
   }, [settings.enableSwipeGestures]);
 
-  // Listen for theme changes in settings
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'poeset_settings') {
-        const s = getSettings();
-        setSettings(s);
-        document.body.setAttribute('data-theme', s.theme);
-      }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
 
-  // React to theme change in settings (local update)
-  useEffect(() => {
-    document.body.setAttribute('data-theme', settings.theme);
-  }, [settings.theme]);
 
   // Swipe gesture handlers
   useEffect(() => {
-    const settings = getSettings();
     if (!settings.enableSwipeGestures) return;
 
     const isInteractiveElement = (target: EventTarget | null): boolean => {
@@ -305,7 +286,7 @@ function App() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img
-            src="/naglowek.svg"
+            src="/PoeSet/naglowek.svg"
             alt="PoeSet Header"
             style={{
               width: '240px',
@@ -406,4 +387,12 @@ function App() {
   );
 }
 
-export default App;
+
+// Owijamy całą aplikację w SettingsProvider
+export default function App() {
+  return (
+    <SettingsProvider>
+      <AppContent />
+    </SettingsProvider>
+  );
+}

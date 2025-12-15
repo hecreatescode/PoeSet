@@ -102,6 +102,7 @@ export interface Settings {
   customFonts?: string[]; // Google Fonts names
   selectedCustomFont?: string;
   useFileSystem?: boolean; // Enable File System Access API
+  titleDecorator?: string; // Dodane pole na ozdobnik tytułu wiersza
 }
 
 export type Screen = 'journal' | 'poems' | 'collections' | 'statistics' | 'settings' | 'templates' | 'goals';

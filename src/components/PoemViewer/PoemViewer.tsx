@@ -4,7 +4,8 @@ import { useNotification } from '../Notification';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import type { Poem, Theme } from '../../types';
-import { deletePoem, savePoem, getSettings } from '../../utils/storage';
+import { deletePoem, savePoem } from '../../utils/storage';
+import { useSettingsContext } from '../../context/SettingsContext';
 import PoemEditor from '../PoemEditor/PoemEditor';
 import Modal from '../Modal/Modal';
 import { useLanguage } from '../../i18n/useLanguage';
@@ -25,7 +26,7 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   // const poemContentRef = useRef<HTMLDivElement>(null); // removed as unused
   const { t } = useLanguage();
-  const settings = getSettings();
+  const { settings } = useSettingsContext();
 
   // Get theme colors for image generation
   const getThemeColors = (theme: Theme) => {
@@ -354,24 +355,17 @@ const PoemViewer: React.FC<PoemViewerProps> = ({ poem, onClose, onUpdate }) => {
         width: '100%',
       }}>
         {poem.title && (
-          <>
-            <h1 className="font-serif poem-title-marked" style={{ 
-              fontSize: '2rem', 
-              marginBottom: 'var(--spacing-lg)',
-              fontWeight: 400,
-              textAlign: 'center',
-              position: 'relative',
-              zIndex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '1.2rem',
-            }}>
-              <span className="poem-title-marker">&gt;&lt;</span>
-              <span>{poem.title}</span>
-              <span className="poem-title-marker">&gt;&lt;</span>
-            </h1>
-          </>
+          <h1 className="font-serif poem-title-marked" style={{ 
+            fontSize: '2rem', 
+            marginBottom: 'var(--spacing-lg)',
+            fontWeight: 400,
+            textAlign: 'center',
+            position: 'relative',
+            zIndex: 1,
+            display: 'block',
+          }}>
+            {(settings.titleDecorator || '„{title}”').replace('{title}', poem.title)}
+          </h1>
         )}
         
         {settings.enableMarkdown ? (
