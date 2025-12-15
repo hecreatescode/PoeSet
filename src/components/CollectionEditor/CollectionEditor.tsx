@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X, Save } from 'lucide-react';
 import type { Collection, Poem } from '../../types';
 import { saveCollection, getPoems } from '../../utils/storage';
+import './CollectionEditor.css';
 
 
 interface CollectionEditorProps {
@@ -20,6 +21,7 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
   const [name, setName] = useState(collection?.name || '');
   const [description, setDescription] = useState(collection?.description || '');
   const [color, setColor] = useState(collection?.color || COLORS[0]);
+  const [customColor, setCustomColor] = useState('');
   const [selectedPoemIds, setSelectedPoemIds] = useState<string[]>(collection?.poemIds || []);
   const [allPoems] = useState<Poem[]>(() => getPoems());
   const [coverImage, setCoverImage] = useState<string | undefined>(collection?.coverImage);
@@ -31,7 +33,7 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
       id: collection?.id || `collection_${Date.now()}`,
       name: name.trim(),
       description: description.trim(),
-      color,
+      color: customColor || color,
       poemIds: selectedPoemIds,
       createdAt: collection?.createdAt || new Date().toISOString(),
       ...(coverImage ? { coverImage } : {}),
@@ -59,7 +61,7 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
   };
 
   return (
-    <div style={{
+    <div className="collection-editor" style={{
       position: 'fixed',
       top: 0,
       left: 0,
@@ -163,28 +165,33 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
             <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500 }}>
               Kolor zbioru
             </label>
-            <div style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap' }}>
+            <div className="color-picker">
               {COLORS.map(c => (
                 <button
                   key={c}
-                  onClick={() => setColor(c)}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: 'var(--radius-md)',
-                    background: c,
-                    border: color === c ? '3px solid var(--light-accent)' : '1px solid var(--light-border)',
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-fast)',
-                  }}
+                  type="button"
+                  className={`color-btn${color === c && !customColor ? ' selected' : ''}`}
+                  onClick={() => { setColor(c); setCustomColor(''); }}
+                  style={{ background: c }}
+                  aria-label={`Wybierz kolor ${c}`}
                 />
               ))}
+              <input
+                type="color"
+                value={customColor || color}
+                onChange={e => { setCustomColor(e.target.value); setColor(e.target.value); }}
+                style={{ width: 44, height: 44, border: 'none', background: 'none', cursor: 'pointer', borderRadius: 'var(--radius-md)' }}
+                aria-label="Wybierz własny kolor"
+              />
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+              Możesz wybrać jeden z predefiniowanych kolorów lub ustawić własny.
             </div>
           </div>
         </div>
 
         {/* Wybór wierszy */}
-        <div style={{
+        <div className="poem-list" style={{
           flex: 1,
           minWidth: 320,
           maxWidth: 600,
@@ -224,6 +231,7 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
               {allPoems.map(poem => (
                 <label 
                   key={poem.id}
+                  className={selectedPoemIds.includes(poem.id) ? 'selected' : ''}
                   style={{
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -232,8 +240,6 @@ const CollectionEditor: React.FC<CollectionEditorProps> = ({ collection, onSave,
                     border: '1px solid var(--light-border)',
                     borderRadius: 'var(--radius-md)',
                     cursor: 'pointer',
-                    background: selectedPoemIds.includes(poem.id) ? 'var(--light-accent)' : 'transparent',
-                    boxShadow: selectedPoemIds.includes(poem.id) ? '0 2px 8px rgba(0,0,0,0.04)' : 'none',
                     transition: 'background 0.2s, box-shadow 0.2s',
                   }}
                 >
