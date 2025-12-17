@@ -31,11 +31,10 @@ function AppContent() {
     document.body.classList.add(`line-spacing-${settings.lineSpacing}`);
   }, [settings.lineSpacing]);
 
-  // Swipe gesture state
+  // Swipe gesture state (tylko dla menu)
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [touchEnd, setTouchEnd] = useState<{ x: number; y: number } | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
-
   // Minimum distance to trigger swipe (in pixels)
   const minSwipeDistance = 80;
   // Maximum vertical distance to still count as horizontal swipe
@@ -139,99 +138,72 @@ function AppContent() {
 
 
 
-  // Swipe gesture handlers
+  // Swipe gesture handlers (tylko nawigacja)
+  const navRef = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!settings.enableSwipeGestures) return;
+    const nav = navRef.current;
+    if (!nav) return;
 
-    const isInteractiveElement = (target: EventTarget | null): boolean => {
-      if (!target || !(target instanceof Element)) return false;
-      
-      const tagName = target.tagName.toLowerCase();
-      const interactiveTags = ['input', 'textarea', 'select', 'button', 'a'];
-      
-      if (interactiveTags.includes(tagName)) return true;
-      
-      // Check if inside a modal, editor, or other interactive component
-      const closestInteractive = target.closest(
-        '.modal, [role="dialog"], [contenteditable], .poem-editor, .collection-editor'
-      );
-      
-      return closestInteractive !== null;
-    };
+    let localTouchStart: { x: number; y: number } | null = null;
+    let localTouchEnd: { x: number; y: number } | null = null;
+    let localIsSwiping = false;
 
     const onTouchStart = (e: TouchEvent) => {
-      // Don't start swipe on interactive elements
-      if (isInteractiveElement(e.target)) {
-        setIsSwiping(false);
-        return;
-      }
-      
       setTouchEnd(null);
       setTouchStart({
         x: e.targetTouches[0].clientX,
         y: e.targetTouches[0].clientY
       });
-      setIsSwiping(true);
+      localTouchStart = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
+      localIsSwiping = true;
     };
-
     const onTouchMove = (e: TouchEvent) => {
-      if (!isSwiping || !touchStart) return;
-      
+      if (!localIsSwiping || !localTouchStart) return;
       setTouchEnd({
         x: e.targetTouches[0].clientX,
         y: e.targetTouches[0].clientY
       });
+      localTouchEnd = { x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY };
     };
-
     const onTouchEnd = () => {
-      if (!isSwiping || !touchStart || !touchEnd) {
+      if (!localIsSwiping || !localTouchStart || !localTouchEnd) {
         setTouchStart(null);
         setTouchEnd(null);
         setIsSwiping(false);
         return;
       }
-      
-      const distanceX = touchStart.x - touchEnd.x;
-      const distanceY = Math.abs(touchStart.y - touchEnd.y);
-      
-      // Only trigger horizontal swipe if vertical movement is minimal
+      const distanceX = localTouchStart.x - localTouchEnd.x;
+      const distanceY = Math.abs(localTouchStart.y - localTouchEnd.y);
       if (distanceY > maxVerticalDistance) {
         setTouchStart(null);
         setTouchEnd(null);
         setIsSwiping(false);
         return;
       }
-      
       const isLeftSwipe = distanceX > minSwipeDistance;
       const isRightSwipe = distanceX < -minSwipeDistance;
-      
       if (isLeftSwipe || isRightSwipe) {
         const currentIndex = screens.indexOf(currentScreen);
-        
         if (isLeftSwipe && currentIndex < screens.length - 1) {
-          // Swipe left - next screen
           setCurrentScreen(screens[currentIndex + 1]);
         } else if (isRightSwipe && currentIndex > 0) {
-          // Swipe right - previous screen
           setCurrentScreen(screens[currentIndex - 1]);
         }
       }
-      
       setTouchStart(null);
       setTouchEnd(null);
       setIsSwiping(false);
     };
-
-    document.addEventListener('touchstart', onTouchStart, { passive: true });
-    document.addEventListener('touchmove', onTouchMove, { passive: true });
-    document.addEventListener('touchend', onTouchEnd);
-
+    nav.addEventListener('touchstart', onTouchStart, { passive: true });
+    nav.addEventListener('touchmove', onTouchMove, { passive: true });
+    nav.addEventListener('touchend', onTouchEnd);
     return () => {
-      document.removeEventListener('touchstart', onTouchStart);
-      document.removeEventListener('touchmove', onTouchMove);
-      document.removeEventListener('touchend', onTouchEnd);
+      nav.removeEventListener('touchstart', onTouchStart);
+      nav.removeEventListener('touchmove', onTouchMove);
+      nav.removeEventListener('touchend', onTouchEnd);
     };
-  }, [currentScreen, touchStart, touchEnd, isSwiping]);
+  }, [currentScreen, settings.enableSwipeGestures]);
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -303,7 +275,7 @@ function AppContent() {
         </Suspense>
       </main>
 
-      <nav className="navigation">
+      <nav className="navigation" ref={navRef}>
         <button 
           className={`nav-button ${currentScreen === 'journal' ? 'active' : ''}`}
           onClick={() => setCurrentScreen('journal')}
